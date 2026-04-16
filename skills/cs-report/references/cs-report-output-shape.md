@@ -72,6 +72,7 @@ A short handoff. The 1-3 things to do next, the biggest unresolved uncertainty, 
 
 ## Implementation Notes
 
+- Before drafting the report, do one quick pass through all bootstrap and hunt markdown artifacts so the narrative is based on the full scan rather than only the aggregate files.
 - Bootstrap context comes from `bootstrap/scope.md`, `bootstrap/inventory.md`, `bootstrap/recon.md`, and `bootstrap/bootstrap.md`.
 - Hunt context comes from `hunt/data-flow.md`, the seven later hunt step files, and `hunt/hunt.md`.
 - Raw support comes from `hunt/artifacts/` or top-level `artifacts/` only when it materially strengthens a claim.

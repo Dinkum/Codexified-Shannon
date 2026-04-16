@@ -43,14 +43,28 @@ Use `references/cs-report-output-shape.md` as the required report structure.
 
 1. Read `references/cs-report-output-shape.md` before writing.
 2. Treat the wording in `references/cs-report-output-shape.md` as the canonical report contract. Preserve it closely rather than paraphrasing it.
-3. Use bootstrap for scope, architecture, trust-boundary, and runtime context.
-4. Use `hunt/data-flow.md`, the seven later hunt step files, and `hunt/hunt.md` for the security narrative.
-5. Main findings should only include `confirmed` items.
-6. `## Prioritized Findings` lists confirmed `P0` and `P1` only.
-7. `## Hardening` is built from bootstrap hardening leads, per-step hardening notes, and low-risk, high-reward resilience or optimization ideas.
-8. `## Misc Notes` is optional and should appear only when something useful does not fit elsewhere.
-9. Cite raw artifacts only when they materially strengthen a claim.
-10. Keep the output local-only.
+3. Do one initial pass through all bootstrap and hunt markdown artifacts before drafting anything:
+   - `bootstrap/scope.md`
+   - `bootstrap/inventory.md`
+   - `bootstrap/recon.md`
+   - `bootstrap/bootstrap.md`
+   - `hunt/data-flow.md`
+   - `hunt/injection.md`
+   - `hunt/xss.md`
+   - `hunt/auth.md`
+   - `hunt/ssrf.md`
+   - `hunt/authz.md`
+   - `hunt/general.md`
+   - `hunt/optimization.md`
+   - `hunt/hunt.md`
+4. Use bootstrap for scope, architecture, trust-boundary, and runtime context.
+5. Use `hunt/data-flow.md`, the seven later hunt step files, and `hunt/hunt.md` for the security narrative.
+6. Main findings should only include `confirmed` items.
+7. `## Prioritized Findings` lists confirmed `P0` and `P1` only.
+8. `## Hardening` is built from bootstrap hardening leads, per-step hardening notes, and low-risk, high-reward resilience or optimization ideas.
+9. `## Misc Notes` is optional and should appear only when something useful does not fit elsewhere.
+10. Cite raw artifacts only when they materially strengthen a claim.
+11. Keep the output local-only.
 
 ## Synthesis Tips
 

@@ -287,6 +287,7 @@ Reporting rules:
 - Pull raw artifacts only when they materially strengthen a claim.
 - Include a `## Prioritized Findings` section for confirmed `P0` and `P1` items only.
 - Use the wording in `cs-report-output-shape.md` as the canonical report contract rather than paraphrasing it.
+- Before drafting the report, do one quick pass through all bootstrap and hunt markdown outputs.
 - Use `## Context (Bootstrap/Meta)` for what was scanned and what could not be checked.
 - In `## Hunt Summary`, include one concise bullet for every hunt step, including `optimization.md`.
 - Use `## Findings By Track` for the per-step detail in scan order.
