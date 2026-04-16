@@ -43,6 +43,8 @@ Use `references/cs-report-output-shape.md` as the required report structure.
 
 1. Read `references/cs-report-output-shape.md` before writing.
 2. Treat the wording in `references/cs-report-output-shape.md` as the canonical report contract. Preserve it closely rather than paraphrasing it.
+   - immediately before writing `report.md`, re-open `references/cs-report-output-shape.md` and follow it exactly
+   - do not write the report from memory or from a generic security-report template
 3. Do one initial pass through all bootstrap and hunt markdown artifacts before drafting anything:
    - `bootstrap/scope.md`
    - `bootstrap/inventory.md`

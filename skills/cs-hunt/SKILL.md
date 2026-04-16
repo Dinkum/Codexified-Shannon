@@ -25,11 +25,12 @@ For every hunt step, complete these mandatory phases in order:
 1. `Investigation`
    - explore the domain thoroughly using the step-specific guidance
    - cast a wide net
-   - append plausible issues, general concerns, or hardening suggestions to `candidates_log.md`
+   - append plausible issues, general concerns, or hardening suggestions to `candidates_log.md` immediately as they are discovered, one item at a time
 2. `Verification`
+   - begin only after the exploration pass for the current step is complete and the candidate set has been written to `candidates_log.md`
    - work through candidates one by one
    - verify, kill, downgrade, or mark safe
-   - append outcomes bit by bit to `verified_log.md`, including verified hardening suggestions and general concerns
+   - append outcomes to `verified_log.md` immediately as each candidate is checked, including verified hardening suggestions and general concerns
 3. `Writeup`
    - write the final step markdown from both logs and what actually happened in the step
 
@@ -38,11 +39,13 @@ Do not treat these as lightweight checkboxes. A step is not complete until the d
 Do not defer log writing.
 - Append to `candidates_log.md` as you investigate, one item at a time.
 - Append to `verified_log.md` as each candidate is checked, one item at a time.
+- Finish the exploration pass and candidate collection for the current step before starting verification.
 - Do not wait until the end of the step to populate either log.
 - Do not reconstruct either log from memory after the fact.
 - Do not begin the next hunt step until `hunt/<step>.md`, `candidates_log.md`, and `verified_log.md` all exist and reflect the work actually performed.
 
 Use `references/cs-hunt-playbook.md` for the shared hunt method, then load the matching file under `references/tracks/` for the current step's heuristics and output shape.
+Immediately before writing any `hunt/<step>.md`, re-open that step's playbook and follow its output shape exactly. Do not write step markdown from memory or from a generic security-review template.
 
 ## Inputs
 
@@ -63,24 +66,24 @@ If bootstrap successfully recorded an `actual_start_command` or `actual_localhos
 
 ## Hunt Step Order
 
+Before starting any step, read all bootstrap artifacts, especially `bootstrap/recon.md`'s `## Universal Attack Mapping` and `## Static Pressure Points`.
+Use `references/cs-hunt-playbook.md` for the shared hunt method and for the `hunt/hunt.md` output instructions.
+Use the matching step playbook under `references/tracks/` for that step's specific method.
+
 Unless the user explicitly narrows scope, execute all eight hunt steps in this order:
 
-1. `data-flow.md`
-2. `injection.md`
-3. `xss.md`
-4. `auth.md`
-5. `ssrf.md`
-6. `authz.md`
-7. `general.md`
-8. `optimization.md`
+1. `data-flow.md` — map attacker-controlled sources to sensitive sinks or protected actions, then judge whether the actual guards or sanitizers are sufficient in context
+2. `injection.md` — look for SQL injection, shell injection, unsafe parser/deserialization paths, traversal-adjacent write/read paths, and adjacent sink abuse
+3. `xss.md` — review reflected, stored, and DOM XSS paths across templates, responses, and browser-side rendering helpers
+4. `auth.md` — review authentication boundaries, session issuance/rotation/invalidation, login flows, callback handling, and account-integrity controls
+5. `ssrf.md` — review attacker-steerable outbound requests, webhook/fetcher/image/push/update paths, and destination-validation controls
+6. `authz.md` — review ownership checks, role/feature gating, multi-tenant isolation, privileged-route protection, and cross-user boundary enforcement
+7. `general.md` — catch real issues outside the five directed lenses; this is also the home for business-logic security testing
+8. `optimization.md` — look for `LOW RISK HIGH REWARD` wins: cheap, low-risk improvements that reduce cost, duplication, latency, or scaling pain
 
 Do not skip ahead. Do not investigate all eight steps first and write them afterward in one batch.
-
-`data-flow.md` runs first and maps attacker-controlled sources to sensitive sinks or protected actions, then judges whether the actual guards or sanitizers are sufficient in context.
-
-`general.md` catches real issues that do not fit cleanly into the five directed lenses. It is also the home for business-logic security testing: infer important invariants from the code, then try to violate them with the cheapest credible local proof path.
-
-`optimization.md` runs last and looks only for `LOW RISK HIGH REWARD` wins: improvements that reduce cost, duplication, latency, or scaling pain without requiring risky rewrites.
+After the eight hunt steps finish, write `hunt/hunt.md`.
+Never mutate the original source repo.
 
 ## Investigation First
 
@@ -138,7 +141,7 @@ Store raw support under `hunt/artifacts/<step>/` when it materially supports the
 
 Honor bootstrap's runtime posture when deciding whether to do this work. If bootstrap selected `code-only`, stay at the code-evidence ceiling and say so directly.
 
-## Required Outputs
+## Outputs
 
 - `hunt/data-flow.md`
 - `hunt/injection.md`
@@ -165,34 +168,3 @@ Honor bootstrap's runtime posture when deciding whether to do this work. If boot
 - `hunt/artifacts/general/verified_log.md`
 - `hunt/artifacts/optimization/candidates_log.md`
 - `hunt/artifacts/optimization/verified_log.md`
-
-## Method
-
-1. Read all bootstrap artifacts before starting any step.
-   - Pay particular attention to `bootstrap/recon.md`'s `## Universal Attack Mapping` and `## Static Pressure Points`.
-2. Read `references/cs-hunt-playbook.md` for the shared hunt method and the output shape for `hunt/hunt.md`.
-3. Read the matching step playbook under `references/tracks/` before writing that step.
-4. Run `data-flow.md` first.
-   - map sources, transforms, guards, sinks, and protected actions
-   - judge the sufficiency of the actual sanitization or guard in context
-   - route the strongest paths into the later domain steps
-   - write `hunt/data-flow.md` before moving to `injection.md`
-5. For the five directed domain steps, check `bootstrap/scope.md` before deep review.
-6. Use `general.md` to consume whatever the universal attack mapping, static pressure sweep, or data-flow pass surfaced that does not fit cleanly into injection, xss, auth, ssrf, or authz.
-   - this is where business-logic security testing lives
-   - infer important invariants from code and state transitions
-   - design concrete violation attempts
-   - validate them with the cheapest credible local proof path
-   - write `hunt/general.md` before moving to `optimization.md`
-7. Run `optimization.md` last.
-   - look only for `LOW RISK HIGH REWARD` wins
-   - focus on avoidable O(n) or repeated work, needless abstraction cost, duplication, unnecessary serialization or parsing, and other efficiency gains that do not require risky rewrites
-   - prefer changes that are cheap to explain and cheap to implement
-   - write `hunt/optimization.md` before aggregate synthesis
-8. After the eight hunt steps finish, write `hunt/hunt.md` as the aggregate hunt synthesis.
-   - include step outcomes
-   - include cross-step chains
-   - include the biggest unresolved paths
-   - include notable hardening, trust-model, and optimization carry-forward notes
-   - include short, concrete suggested next moves for the final handoff
-9. Never mutate the original source repo.

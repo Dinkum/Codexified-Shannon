@@ -80,44 +80,52 @@ Do not start Hunt until Bootstrap is fully complete.
 3. Load `skills/cs-hunt/references/framework-checklists.md` when relevant to the detected stack.
 
 4. Run the `data-flow` step.
-   a. Load and run `skills/cs-hunt/references/tracks/data-flow-playbook.md` to investigate the domain and continually append plausible issues, leads, and concerns to `hunt/artifacts/data-flow/candidates_log.md`.
-   b. Perform a separate verification pass and append outcomes to `hunt/artifacts/data-flow/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
-   c. Write `hunt/data-flow.md`.
+   a. Load and run `skills/cs-hunt/references/tracks/data-flow-playbook.md` to investigate the domain and continually append (one at a time as they are discovered) plausible issues, leads, and concerns to `hunt/artifacts/data-flow/candidates_log.md`.
+   b. Perform a separate verification pass, checking each candidate individually, and continually append verified findings to `hunt/artifacts/data-flow/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
+   c. Immediately before writing, re-open `skills/cs-hunt/references/tracks/data-flow-playbook.md` and follow its output shape exactly. Do not write `hunt/data-flow.md` from memory or from a generic template.
+   d. Write `hunt/data-flow.md`.
 
 5. Run the `injection` step.
-   a. Load and run `skills/cs-hunt/references/tracks/injection-playbook.md` to investigate the domain and continually append plausible issues, leads, and concerns to `hunt/artifacts/injection/candidates_log.md`.
-   b. Perform a separate verification pass and append outcomes to `hunt/artifacts/injection/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
-   c. Write `hunt/injection.md`.
+   a. Load and run `skills/cs-hunt/references/tracks/injection-playbook.md` to investigate the domain and continually append (one at a time as they are discovered) plausible issues, leads, and concerns to `hunt/artifacts/injection/candidates_log.md`.
+   b. Perform a separate verification pass, checking each candidate individually, and continually append verified findings to `hunt/artifacts/injection/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
+   c. Immediately before writing, re-open `skills/cs-hunt/references/tracks/injection-playbook.md` and follow its output shape exactly. Do not write `hunt/injection.md` from memory or from a generic template.
+   d. Write `hunt/injection.md`.
 
 6. Run the `xss` step.
-   a. Load and run `skills/cs-hunt/references/tracks/xss-playbook.md` to investigate the domain and continually append plausible issues, leads, and concerns to `hunt/artifacts/xss/candidates_log.md`.
-   b. Perform a separate verification pass and append outcomes to `hunt/artifacts/xss/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
-   c. Write `hunt/xss.md`.
+   a. Load and run `skills/cs-hunt/references/tracks/xss-playbook.md` to investigate the domain and continually append (one at a time as they are discovered) plausible issues, leads, and concerns to `hunt/artifacts/xss/candidates_log.md`.
+   b. Perform a separate verification pass, checking each candidate individually, and continually append verified findings to `hunt/artifacts/xss/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
+   c. Immediately before writing, re-open `skills/cs-hunt/references/tracks/xss-playbook.md` and follow its output shape exactly. Do not write `hunt/xss.md` from memory or from a generic template.
+   d. Write `hunt/xss.md`.
 
 7. Run the `auth` step.
-   a. Load and run `skills/cs-hunt/references/tracks/auth-playbook.md` to investigate the domain and continually append plausible issues, leads, and concerns to `hunt/artifacts/auth/candidates_log.md`.
-   b. Perform a separate verification pass and append outcomes to `hunt/artifacts/auth/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
-   c. Write `hunt/auth.md`.
+   a. Load and run `skills/cs-hunt/references/tracks/auth-playbook.md` to investigate the domain and continually append (one at a time as they are discovered) plausible issues, leads, and concerns to `hunt/artifacts/auth/candidates_log.md`.
+   b. Perform a separate verification pass, checking each candidate individually, and continually append verified findings to `hunt/artifacts/auth/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
+   c. Immediately before writing, re-open `skills/cs-hunt/references/tracks/auth-playbook.md` and follow its output shape exactly. Do not write `hunt/auth.md` from memory or from a generic template.
+   d. Write `hunt/auth.md`.
 
 8. Run the `ssrf` step.
-   a. Load and run `skills/cs-hunt/references/tracks/ssrf-playbook.md` to investigate the domain and continually append plausible issues, leads, and concerns to `hunt/artifacts/ssrf/candidates_log.md`.
-   b. Perform a separate verification pass and append outcomes to `hunt/artifacts/ssrf/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
-   c. Write `hunt/ssrf.md`.
+   a. Load and run `skills/cs-hunt/references/tracks/ssrf-playbook.md` to investigate the domain and continually append (one at a time as they are discovered) plausible issues, leads, and concerns to `hunt/artifacts/ssrf/candidates_log.md`.
+   b. Perform a separate verification pass, checking each candidate individually, and continually append verified findings to `hunt/artifacts/ssrf/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
+   c. Immediately before writing, re-open `skills/cs-hunt/references/tracks/ssrf-playbook.md` and follow its output shape exactly. Do not write `hunt/ssrf.md` from memory or from a generic template.
+   d. Write `hunt/ssrf.md`.
 
 9. Run the `authz` step.
-   a. Load and run `skills/cs-hunt/references/tracks/authz-playbook.md` to investigate the domain and continually append plausible issues, leads, and concerns to `hunt/artifacts/authz/candidates_log.md`.
-   b. Perform a separate verification pass and append outcomes to `hunt/artifacts/authz/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
-   c. Write `hunt/authz.md`.
+   a. Load and run `skills/cs-hunt/references/tracks/authz-playbook.md` to investigate the domain and continually append (one at a time as they are discovered) plausible issues, leads, and concerns to `hunt/artifacts/authz/candidates_log.md`.
+   b. Perform a separate verification pass, checking each candidate individually, and continually append verified findings to `hunt/artifacts/authz/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
+   c. Immediately before writing, re-open `skills/cs-hunt/references/tracks/authz-playbook.md` and follow its output shape exactly. Do not write `hunt/authz.md` from memory or from a generic template.
+   d. Write `hunt/authz.md`.
 
 10. Run the `general` step.
-    a. Load and run `skills/cs-hunt/references/tracks/general-playbook.md` to investigate the domain and continually append plausible issues, leads, and concerns to `hunt/artifacts/general/candidates_log.md`.
-    b. Perform a separate verification pass and append outcomes to `hunt/artifacts/general/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
-    c. Write `hunt/general.md`.
+    a. Load and run `skills/cs-hunt/references/tracks/general-playbook.md` to investigate the domain and continually append (one at a time as they are discovered) plausible issues, leads, and concerns to `hunt/artifacts/general/candidates_log.md`.
+    b. Perform a separate verification pass, checking each candidate individually, and continually append verified findings to `hunt/artifacts/general/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
+    c. Immediately before writing, re-open `skills/cs-hunt/references/tracks/general-playbook.md` and follow its output shape exactly. Do not write `hunt/general.md` from memory or from a generic template.
+    d. Write `hunt/general.md`.
 
 11. Run the `optimization` step.
-    a. Load and run `skills/cs-hunt/references/tracks/optimization-playbook.md` to investigate the domain and continually append plausible issues, leads, and concerns to `hunt/artifacts/optimization/candidates_log.md`.
-    b. Perform a separate verification pass and append outcomes to `hunt/artifacts/optimization/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
-    c. Write `hunt/optimization.md`.
+    a. Load and run `skills/cs-hunt/references/tracks/optimization-playbook.md` to investigate the domain and continually append (one at a time as they are discovered) plausible issues, leads, and concerns to `hunt/artifacts/optimization/candidates_log.md`.
+    b. Perform a separate verification pass, checking each candidate individually, and continually append verified findings to `hunt/artifacts/optimization/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
+    c. Immediately before writing, re-open `skills/cs-hunt/references/tracks/optimization-playbook.md` and follow its output shape exactly. Do not write `hunt/optimization.md` from memory or from a generic template.
+    d. Write `hunt/optimization.md`.
 
 12. After all hunt steps are complete, write `hunt/hunt.md`.
 
@@ -128,7 +136,8 @@ Do not start Report until Hunt is fully complete.
 1. Load `skills/cs-report/SKILL.md`.
 2. Load `skills/cs-report/references/cs-report-output-shape.md`.
 3. Read all bootstrap and hunt artifacts.
-4. Write `reports/<repo>-<YYYY-MM-DD-HH-MM>/report.md`.
+4. Immediately before writing, re-open `skills/cs-report/references/cs-report-output-shape.md` and follow it exactly. Do not write `report.md` from memory or from a generic security report template.
+5. Write `reports/<repo>-<YYYY-MM-DD-HH-MM>/report.md`.
 
 ## First Principles
 

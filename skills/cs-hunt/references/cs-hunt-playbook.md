@@ -15,8 +15,8 @@ Use this file for the shared hunt method. Then load the matching file under `ref
 4. Run `data-flow.md` first and route the strongest paths into the later domain steps.
 5. For the directed domain steps, check `bootstrap/scope.md` before deep review.
 6. Treat each hunt domain as a full step with three mandatory consecutive phases:
-   - `Investigation`: use the current step playbook to explore the domain thoroughly, cast a wide net, and append plausible issues, general concerns, or hardening suggestions to `hunt/artifacts/<step>/candidates_log.md`
-   - `Verification`: work through candidates one by one, verify or kill them, and append the outcome bit by bit to `hunt/artifacts/<step>/verified_log.md`, including verified general concerns and hardening suggestions
+   - `Investigation`: use the current step playbook to explore the domain thoroughly, cast a wide net, and append each plausible issue, general concern, or hardening suggestion to `hunt/artifacts/<step>/candidates_log.md` immediately when discovered
+   - `Verification`: begin only after the exploration pass is complete and the candidate set for the step has been appended to `hunt/artifacts/<step>/candidates_log.md`; then work through candidates one by one, verify or kill them, and append each outcome to `hunt/artifacts/<step>/verified_log.md` immediately before checking the next candidate, including verified general concerns and hardening suggestions
    - `Writeup`: write one operator-facing markdown file for the step, synthesized from both logs and what actually happened during investigation and verification
 7. During the `Verification` phase, if a new plausible issue or concern appears:
    - append it to `candidates_log.md`
@@ -36,6 +36,13 @@ Use this file for the shared hunt method. Then load the matching file under `ref
 11. After all eight hunt steps finish, write `hunt/hunt.md` as the aggregate hunt synthesis.
 
 Treat each hunt step as a real domain checkpoint with three explicit consecutive phases: investigate, verify, then write. Do not do one giant hunt pass and dump `data-flow.md`, the five directed steps, `general.md`, and `optimization.md` at the end. Finish the current domain to a solid, satisfactory, operator-usable standard before continuing in order. If a later step materially changes an earlier conclusion, update the earlier step explicitly.
+
+Treat logging as live within each phase:
+
+- during investigation, discover one candidate -> append it immediately
+- only after the exploration pass is complete should verification begin
+- during verification, check one candidate -> append the outcome immediately
+- do not batch a whole investigation or verification pass in memory and only write the logs afterward
 
 The required hunt sequence is:
 
@@ -79,12 +86,13 @@ Good enumeration widens coverage; it does not replace reasoning.
 Every hunt step must keep two append-only scratchpads under `hunt/artifacts/<step>/`:
 
 - `candidates_log.md`
-  - pass-1 collection of plausible issues, general concerns, and hardening suggestions
-  - append as you go; do not rewrite it into a polished report
+  - live append-only scratchpad for plausible issues, general concerns, and hardening suggestions
+  - append each candidate immediately when you discover it; do not wait until the end of investigation
+  - do not rewrite it into a polished report
 - `verified_log.md`
-  - pass-2 outcomes for each candidate
-  - append whether the candidate was kept, downgraded to a concern, confirmed as a hardening suggestion, disproved, or left unresolved
-  - if verification uncovers a new candidate, append that too and keep going until the new path is resolved or explicitly left open
+  - live append-only scratchpad for outcomes on each candidate
+  - append whether the candidate was kept, downgraded to a concern, confirmed as a hardening suggestion, disproved, or left unresolved immediately after that candidate is checked
+  - if verification uncovers a new candidate, append that candidate immediately to `candidates_log.md`, then keep going until the new path is resolved or explicitly left open
 
 These logs are working memory for hunt, not end-user prose. The final step markdown should be written only after the investigation and verification substeps are both complete.
 

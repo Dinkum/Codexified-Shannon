@@ -89,3 +89,5 @@ Also maintain:
 
 - `hunt/artifacts/general/candidates_log.md`
 - `hunt/artifacts/general/verified_log.md`
+- during exploration, append each candidate to `candidates_log.md` immediately when it is discovered
+- once exploration for the step is complete, begin verification and append each verification outcome to `verified_log.md` immediately before checking the next candidate
