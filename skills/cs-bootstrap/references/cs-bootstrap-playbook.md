@@ -13,6 +13,13 @@ Use this file for the shared bootstrap method. Pair it with the step playbooks u
    - `bootstrap.md`
    - `handoff.json`
 4. Keep the original source repo read-only. Any build, run, test, or probe action must use the working copy.
+5. Do not borrow the source repo's runtime state after the copy exists.
+   - no source-repo `.venv`
+   - no source-repo `node_modules/.bin`
+   - no source-repo build outputs or helper binaries
+   - no source-repo services started outside the working copy
+
+Treat each bootstrap artifact as a checkpoint. Do not do one giant recon pass and dump `scope.md`, `inventory.md`, `recon.md`, and `bootstrap.md` in one swoop at the end. Bring the current artifact to a solid, satisfactory, operator-usable state, write it, then continue. If later evidence materially changes an earlier file, update it explicitly instead of silently relying on stale bootstrap output.
 
 ## Ground Truth Rules
 
@@ -26,12 +33,13 @@ Use this file for the shared bootstrap method. Pair it with the step playbooks u
 Bootstrap owns tool readiness for the rest of the scan.
 
 - Treat Tier A as required baseline tooling: `rg`, `fd`, `jq`, `yq`, `git`, `semgrep`, `curl`.
-- If a Tier A tool is missing, stop early and surface the install command instead of improvising around it.
-- Build one Tier B `useful for this scan` proposal after inventory and recon, before hunt starts.
+- If a Tier A tool is missing, attempt the install command so approval or denial is explicit. If the install is denied or fails, stop early instead of improvising around it.
+- When invoking `semgrep`, point `HOME`, `SEMGREP_USER_HOME`, `XDG_CONFIG_HOME`, and `XDG_CACHE_HOME` at a writable scan-local directory under `scratch/` so it does not try to write to `~/.semgrep`.
+- Build one Tier B `useful for this scan` list after inventory and recon, then attempt one batched install command before hunt starts.
 - Keep Tier B repo-tied and practical. Propose only the tools that materially improve this scan.
 - When bootstrap chooses `local runtime`, the same batched proposal may include repo-specific dependencies or local services needed to start the app, but only when they are ordinary developer tooling or local services reasonable to install on a personal computer.
 - Prefer repo-native test, lint, and audit commands when the target project already defines them.
-- Never auto-install optional tools. Never re-prompt within the same scan.
+- Do not merely print suggested install commands and wait. Attempt the batched install so approval or denial is explicit, then continue based on the result. Never re-prompt within the same scan.
 
 Strong Tier B candidates include:
 
@@ -89,16 +97,16 @@ When the repo looks runnable, leave later phases a lightweight validation handof
 
 Do not turn bootstrap into full environment recreation.
 
-## Tier B Approval Hand-Off
+## Tier B Install Hand-Off
 
-Before hunt starts, package optional-tool recommendations into one batched operator-facing request.
+Before hunt starts, package optional-tool recommendations into one batched install attempt.
 
 - call the list `useful for this scan`
 - give one-line repo-tied justification per tool
 - include reasonable repo-specific dependencies or local services needed for `local runtime` when they materially affect the scan
-- include the install command for the operator's platform
-- say what coverage or convenience gets skipped if the tools are not approved
-- do not split this into multiple prompts
+- attempt the install command for the operator's platform instead of only printing it
+- if the install is denied or fails, say what coverage or convenience gets skipped
+- do not split this into multiple prompts or multiple piecemeal install attempts
 
 ## Output Shape
 

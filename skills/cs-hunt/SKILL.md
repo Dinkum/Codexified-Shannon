@@ -13,6 +13,23 @@ The goal is not to spray generic scanners at the repo. The goal is to develop st
 
 Confirmed vulnerabilities are not the only valid output. Material hardening improvements, fragile controls, and regression-prone defenses should be carried forward when they materially improve security posture, even if no exploit is confirmed.
 
+Treat hunt as a consecutive sequence of domain steps, not one broad investigation pass followed by a bulk write. Each hunt domain is a real step that must be fully worked before the next one begins.
+
+For every hunt step, complete these mandatory phases in order:
+
+1. `Investigation`
+   - explore the domain thoroughly using the step-specific guidance
+   - cast a wide net
+   - append plausible issues or concerns to `candidates_log.md`
+2. `Verification`
+   - work through candidates one by one
+   - verify, kill, downgrade, or mark safe
+   - append outcomes bit by bit to `verified_log.md`
+3. `Writeup`
+   - write the final operator-facing step markdown from both logs and what actually happened in the step
+
+Do not treat these as lightweight checkboxes. A step is not complete until the domain has been explored to a solid, satisfactory, operator-usable degree, the candidate set has been pressure-tested, and the final step writeup has been produced. Later steps may reference or refine earlier conclusions, but do not defer all step writing until the end.
+
 Use `references/cs-hunt-playbook.md` for the shared hunt method, then load the matching file under `references/tracks/` for the current step's heuristics and output shape.
 
 ## Inputs
@@ -44,22 +61,27 @@ Unless the user explicitly narrows scope, execute all eight hunt steps in this o
 7. `general.md`
 8. `optimization.md`
 
+Do not skip ahead. Do not investigate all eight steps first and write them afterward in one batch.
+
 `data-flow.md` runs first and maps attacker-controlled sources to sensitive sinks or protected actions, then judges whether the actual guards or sanitizers are sufficient in context.
 
 `general.md` catches real issues that do not fit cleanly into the five directed lenses. It is also the home for business-logic security testing: infer important invariants from the code, then try to violate them with the cheapest credible local proof path.
 
 `optimization.md` runs last and looks only for `LOW RISK HIGH REWARD` wins: improvements that reduce cost, duplication, latency, or scaling pain without requiring risky rewrites.
 
-## Enumeration First
+## Investigation First
 
-Before writing a step file:
+Before verification or final writeup for a step:
 
 - run targeted `rg` searches using the baseline patterns from the current step playbook
 - run `semgrep` when it is available and meaningful for the stack
 - read `references/framework-checklists.md` when `bootstrap/handoff.json` identifies a matching framework
 - save raw support under `hunt/artifacts/<step>/` only when it materially helps
+- create and maintain two append-only step scratchpads:
+  - `hunt/artifacts/<step>/candidates_log.md`
+  - `hunt/artifacts/<step>/verified_log.md`
 
-Enumeration widens coverage; it does not prove a finding.
+Enumeration widens coverage; it does not prove a finding. The goal of this first substep is to investigate the current domain thoroughly and leave a broad but credible candidate set in `candidates_log.md`.
 
 ## Validation Ladder
 
@@ -69,9 +91,10 @@ Use this as a practical decision tree:
 2. Read existing tests that touch the path.
 3. If runtime posture is `read-only runtime` or `local runtime`, use existing tests, harmless local inspection commands, or other non-mutating execution that sharpens the path.
 4. If runtime posture is `local runtime`, write a small repo-local harness when isolating the helper is cheaper than booting a stack, or use `curl` or equivalent against a localhost service started from the working copy when endpoint behavior matters.
-5. If none of the above safely closes the loop, carry the path forward as `needs-runtime-validation` and say exactly why.
+5. If none of the above safely closes the loop, carry the path forward as `code-supported` and say exactly why runtime confirmation is still missing.
 
 Do not force every rung when it is clearly inapplicable. Do record what was tried.
+Do not satisfy runtime or test steps by invoking interpreters, virtualenvs, package installs, or services from the original source repo.
 
 ## Hunt Mindset
 
@@ -95,6 +118,7 @@ If the repo can be run locally from the working copy, useful validation moves in
 - seed temporary data in the copied repo
 - write a tiny harness into `scratch/` to isolate a parser, validator, or helper
 - add short-lived local instrumentation in the copied repo to confirm a code path
+- create any needed runtime environment inside the working copy rather than borrowing the source repo's `.venv`, `node_modules`, or helper binaries
 
 Store raw support under `hunt/artifacts/<step>/` when it materially supports the step writeup.
 
@@ -111,10 +135,22 @@ Honor bootstrap's runtime posture when deciding whether to do this work. If boot
 - `hunt/general.md`
 - `hunt/optimization.md`
 - `hunt/hunt.md`
-
-Optional raw support:
-
-- `hunt/artifacts/<step>/...`
+- `hunt/artifacts/data-flow/candidates_log.md`
+- `hunt/artifacts/data-flow/verified_log.md`
+- `hunt/artifacts/injection/candidates_log.md`
+- `hunt/artifacts/injection/verified_log.md`
+- `hunt/artifacts/xss/candidates_log.md`
+- `hunt/artifacts/xss/verified_log.md`
+- `hunt/artifacts/auth/candidates_log.md`
+- `hunt/artifacts/auth/verified_log.md`
+- `hunt/artifacts/ssrf/candidates_log.md`
+- `hunt/artifacts/ssrf/verified_log.md`
+- `hunt/artifacts/authz/candidates_log.md`
+- `hunt/artifacts/authz/verified_log.md`
+- `hunt/artifacts/general/candidates_log.md`
+- `hunt/artifacts/general/verified_log.md`
+- `hunt/artifacts/optimization/candidates_log.md`
+- `hunt/artifacts/optimization/verified_log.md`
 
 ## Method
 
@@ -126,22 +162,34 @@ Optional raw support:
    - map sources, transforms, guards, sinks, and protected actions
    - judge the sufficiency of the actual sanitization or guard in context
    - route the strongest paths into the later domain steps
+   - write `hunt/data-flow.md` before moving to `injection.md`
 5. For the five directed domain steps, check `bootstrap/scope.md` before deep review.
-6. Run enumeration first, then trace, then validate when needed.
-7. Write each step as one operator-facing markdown artifact.
-8. Use `general.md` to consume whatever the universal attack mapping, static pressure sweep, or data-flow pass surfaced that does not fit cleanly into injection, xss, auth, ssrf, or authz.
+6. For each step, perform three separate substeps before moving on:
+   - investigation substep: use the current step playbook to investigate thoroughly, cast a wide net, and append plausible issues or concerns to `hunt/artifacts/<step>/candidates_log.md`
+   - verification substep: work through candidates one by one, verify or kill them, and append outcomes bit by bit to `hunt/artifacts/<step>/verified_log.md`
+   - writeup substep: write the final step markdown from both logs and the actual step narrative
+7. During the verification substep, if a new plausible issue or concern appears:
+   - append it to `candidates_log.md`
+   - investigate it in the same step
+   - record the outcome in `verified_log.md`
+   - do not treat the initial `candidates_log.md` contents as a closed set
+8. Run investigation first, then trace and validate during verification, then write the final markdown.
+9. Write each step as one operator-facing markdown artifact before starting the next step.
+10. Use `general.md` to consume whatever the universal attack mapping, static pressure sweep, or data-flow pass surfaced that does not fit cleanly into injection, xss, auth, ssrf, or authz.
    - this is where business-logic security testing lives
    - infer important invariants from code and state transitions
    - design concrete violation attempts
    - validate them with the cheapest credible local proof path
-9. Run `optimization.md` last.
+   - write `hunt/general.md` before moving to `optimization.md`
+11. Run `optimization.md` last.
    - look only for `LOW RISK HIGH REWARD` wins
    - focus on avoidable O(n) or repeated work, needless abstraction cost, duplication, unnecessary serialization or parsing, and other efficiency gains that do not require risky rewrites
    - prefer changes that are cheap to explain and cheap to implement
-10. After the eight hunt steps finish, write `hunt/hunt.md` as the aggregate hunt synthesis.
+   - write `hunt/optimization.md` before aggregate synthesis
+12. After the eight hunt steps finish, write `hunt/hunt.md` as the aggregate hunt synthesis.
    - include step outcomes
    - include cross-step chains
    - include the biggest unresolved paths
    - include notable hardening, trust-model, and optimization carry-forward notes
    - include short, concrete suggested next moves for the final handoff
-11. Never mutate the original source repo.
+13. Never mutate the original source repo.

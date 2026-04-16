@@ -2,6 +2,8 @@
 
 Use this when the repo is large, multi-service, or initially confusing. Recon should turn the inventory into a repo-specific attack map and runtime handoff.
 
+This is the third bootstrap checkpoint. Start from `inventory.md`, build the repo-specific attack map, and write `recon.md` before producing the final bootstrap synthesis.
+
 ## Questions To Answer Early
 
 - What actually starts in production or local dev?

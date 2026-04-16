@@ -14,12 +14,40 @@ Use this file for the shared hunt method. Then load the matching file under `ref
 3. Start from `bootstrap/recon.md`'s `## Universal Attack Mapping`, `bootstrap/recon.md`'s `## Static Pressure Points`, and `bootstrap/bootstrap.md`'s investigation directions.
 4. Run `data-flow.md` first and route the strongest paths into the later domain steps.
 5. For the directed domain steps, check `bootstrap/scope.md` before deep review.
-6. Run enumeration first, then trace, then validate when needed.
-7. Write one operator-facing markdown file per step.
+6. Treat each hunt domain as a full step with three mandatory consecutive phases:
+   - `Investigation`: use the current step playbook to explore the domain thoroughly, cast a wide net, and append plausible issues or concerns to `hunt/artifacts/<step>/candidates_log.md`
+   - `Verification`: work through candidates one by one, verify or kill them, and append the outcome bit by bit to `hunt/artifacts/<step>/verified_log.md`
+   - `Writeup`: write one operator-facing markdown file for the step, synthesized from both logs and what actually happened during investigation and verification
+7. During the `Verification` phase, if a new plausible issue or concern appears:
+   - append it to `candidates_log.md`
+   - investigate it in the same step
+   - record the outcome in `verified_log.md`
+   - do not treat the initial `candidates_log.md` contents as a closed set
+8. Do not move to the next hunt step until the current domain has been properly explored, the candidate set has been pressure-tested, and the writeup is complete.
+9. Write one operator-facing markdown file per step.
+   - every subsection in the step markdown should be a flat list, not prose blocks
+   - use `## What We Looked Into` to name the reviewed surfaces and, when helpful, briefly note which ones held up as safe
    - treat hardening as a first-class output, not as leftover report polish
-   - when a control is missing, fragmented, opt-in, weak by default, or likely to regress, record the hardening note even if no exploit is confirmed
-8. Run `optimization.md` last and keep it focused on `LOW RISK HIGH REWARD` wins rather than broad rewrite ideas.
-9. After all eight hunt steps finish, write `hunt/hunt.md` as the aggregate hunt synthesis.
+   - any material issue with a concrete path belongs in `## Issues We Found And Verified`
+   - any material hardening or trust-boundary concern belongs in `## General Concerns We Found And Verified`
+   - every concern should include the concern, where it lives, why it matters, and the suggested hardening step
+   - reserve `## Summary` for short orientation bullets, not for hiding the actual issue load
+10. Run `optimization.md` last and keep it focused on `LOW RISK HIGH REWARD` wins rather than broad rewrite ideas.
+11. After all eight hunt steps finish, write `hunt/hunt.md` as the aggregate hunt synthesis.
+
+Treat each hunt step as a real domain checkpoint with three explicit consecutive phases: investigate, verify, then write. Do not do one giant hunt pass and dump `data-flow.md`, the five directed steps, `general.md`, and `optimization.md` at the end. Finish the current domain to a solid, satisfactory, operator-usable standard before continuing in order. If a later step materially changes an earlier conclusion, update the earlier step explicitly.
+
+The required hunt sequence is:
+
+1. `data-flow.md`
+2. `injection.md`
+3. `xss.md`
+4. `auth.md`
+5. `ssrf.md`
+6. `authz.md`
+7. `general.md`
+8. `optimization.md`
+9. `hunt/hunt.md`
 
 ## Scope Gate
 
@@ -40,10 +68,25 @@ Before writing a step file:
 
 1. Run targeted `rg` searches using the baseline patterns from the current step playbook.
 2. Run `semgrep` when it is installed and meaningful for the stack.
+   - Point `HOME`, `SEMGREP_USER_HOME`, `XDG_CONFIG_HOME`, and `XDG_CACHE_HOME` at a writable scan-local directory under `scratch/` so it does not try to write to `~/.semgrep`.
 3. Store raw outputs under `hunt/artifacts/<step>/` only when they materially help.
 4. Cite the sweep results or explicitly state that the baseline searches did not produce useful hits.
 
 Good enumeration widens coverage; it does not replace reasoning.
+
+## Step Scratchpads
+
+Every hunt step must keep two append-only scratchpads under `hunt/artifacts/<step>/`:
+
+- `candidates_log.md`
+  - pass-1 collection of plausible issues and concerns
+  - append as you go; do not rewrite it into a polished report
+- `verified_log.md`
+  - pass-2 outcomes for each candidate
+  - append whether the candidate was kept, downgraded to a concern, disproved, or left unresolved
+  - if verification uncovers a new candidate, append that too and keep going until the new path is resolved or explicitly left open
+
+These logs are working memory for hunt, not end-user prose. The final step markdown should be written only after the investigation and verification substeps are both complete.
 
 ## Validation Ladder
 
@@ -53,9 +96,19 @@ Use this as a practical decision tree:
 2. Read existing tests that touch the path.
 3. If runtime posture is `read-only runtime` or `local runtime`, use existing tests, harmless local inspection commands, or other non-mutating execution that sharpens the path.
 4. If runtime posture is `local runtime`, write a small repo-local harness when isolating the helper is cheaper than booting a stack, or use `curl` or equivalent against a localhost service started from the working copy when endpoint behavior matters.
-5. If none of the above safely closes the loop, carry the path forward as `needs-runtime-validation` and say exactly why.
+5. If none of the above safely closes the loop, carry the path forward as `code-supported` and say exactly why runtime confirmation is still missing.
 
 Do not force every rung when it is clearly inapplicable. Do record what was tried.
+Do not use the original source repo's `.venv`, `node_modules`, compiled helpers, or already-running services to satisfy these runtime steps.
+
+## Verification Notes
+
+When moving a candidate from `candidates_log.md` to `verified_log.md`, capture enough to make the decision auditable:
+
+- what path or invariant you checked
+- what evidence changed your confidence
+- whether it landed as an issue, a concern, a safe call, or a dead end
+- what follow-up would be needed if runtime proof is still missing
 
 ## Trace Blocks
 
@@ -65,7 +118,7 @@ For every non-trivial finding and every material `safe` determination, leave beh
 - `Transforms`: meaningful helpers, parsing, normalization, or branching along the path
 - `Sink Or Protected Action`: the dangerous operation or sensitive action
 - `Guard`: what blocks exploitation or enforces the boundary
-- `Verdict`: `safe`, `confirmed`, `strong-code-evidence`, or `needs-runtime-validation`
+- `Verdict`: `safe`, `runtime-confirmed`, or `code-supported`
 
 Each line should cite file and line references when the path depends on real code.
 
@@ -86,6 +139,7 @@ When in doubt, round down.
 - isolate one parser or helper with a tiny harness
 - reuse existing tests where practical
 - prefer localhost services over broad environment recreation
+- keep the runtime environment inside the working copy rather than borrowing it from the source repo
 - log the exact command or harness path if it would help a later operator pick up the thread
 - stay within the runtime posture bootstrap declared
 
@@ -111,13 +165,15 @@ When in doubt, round down.
 Required sections:
 
 1. `# Hunt`
-2. `## Step Outcomes`
+2. `## Summary`
 3. `## Cross-Step Chains`
 4. `## Highest-Value Unresolved Paths`
-5. `## Hardening And Trust-Model Carry-Forward`
+5. `## General Concerns Carried Forward`
 6. `## LOW RISK HIGH REWARD Wins`
 7. `## Suggested Next Moves`
-8. `## Overall Hunt Verdict`
+8. `## Misc Notes`
+
+All sections should be flat lists.
 
 Only put real cross-step chains in `## Cross-Step Chains`. Do not invent them to fill the section.
 

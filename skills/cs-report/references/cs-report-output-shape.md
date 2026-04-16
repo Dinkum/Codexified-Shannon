@@ -12,7 +12,7 @@ Use the following as the canonical report contract to structure your final repor
 A short narrative summary. Explain what kind of app this is, what was scanned, what the headline finding is, and how worried the operator should be. Write this for a decision-maker: minimal jargon, no per-track enumeration. End with the single sentence the operator should remember if they read nothing else.
 
 ## Prioritized Findings
-Confirmed `P0` and `P1` only, pulled across all steps. For each, give the title, source step, a one-line reason it cannot wait, and a fix direction.
+Runtime-confirmed `P0` and `P1` only, pulled across all steps. For each, give the title, source step, a one-line reason it cannot wait, and a fix direction.
 
 If none exist, say so plainly and name the strongest reviewed control as context. An empty section here is a real result.
 
@@ -25,7 +25,7 @@ The repo shape, runtime units, and surfaces actually touched. Two paragraphs is 
 Coverage gaps: subdomains skipped, runtime posture limits, tools the operator did not approve, or validation paths that could not be exercised. Be specific: `Secret scanning fell back to grep — gitleaks declined` is better than `limited coverage`.
 
 ## Hunt Summary
-A short technical summary of the hunt phase. Call out any cross-step chains, themes, or shared-root issues worth flagging at the summary level.
+A short technical summary of the hunt phase. Call out any cross-step chains, themes, or shared-root issues worth flagging at the summary level. Prose/narrative overview NOT a per track enumeration.
 
 Keep this brief. The detail belongs in `Findings By Track`.
 
@@ -40,9 +40,13 @@ Open with a brief overall narrative only if there is one worth giving. If the st
 #### Finding
 Only include this when findings exist.
 
+Use this block for any material item from the step's `## Issues We Found And Verified` section. A finding does not need to be runtime-confirmed to belong here.
+Do not bury a concrete issue in `#### Summary` just because it is only `code-supported`.
+
 For each finding:
 - **Title** and severity
-- **What it is** — the issue, with specific file, route, or function references, and how it was confirmed
+- **Proof state** — `runtime-confirmed` or `code-supported`
+- **What it is** — the issue, with specific file, route, or function references, and how it was established
 - **If exploited** — what it costs the user, system, or data
 - **Suggested fix** — concrete direction tied to a specific code layer
 
@@ -76,6 +80,9 @@ A short handoff. The 1-3 things to do next, the biggest unresolved uncertainty, 
 - Bootstrap context comes from `bootstrap/scope.md`, `bootstrap/inventory.md`, `bootstrap/recon.md`, and `bootstrap/bootstrap.md`.
 - Hunt context comes from `hunt/data-flow.md`, the seven later hunt step files, and `hunt/hunt.md`.
 - Raw support comes from `hunt/artifacts/` or top-level `artifacts/` only when it materially strengthens a claim.
+- Per-step findings come from `## Issues We Found And Verified`.
+- Per-step hardening comes from `## General Concerns We Found And Verified`.
+- Reviewed-safe surfaces come from safe calls in each step's `verified_log.md` plus clearly safe bullets in `## What We Looked Into`.
 - `## Hunt Summary` should include one concise bullet for every hunt step in scan order:
   - `data-flow`
   - `injection`

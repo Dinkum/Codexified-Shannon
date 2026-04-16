@@ -2,6 +2,8 @@
 
 Write `bootstrap/scope.md` first. This file decides how later phases should treat the target instead of letting hunt guess the repo shape.
 
+This is the first bootstrap checkpoint. Gather only the evidence needed to classify the target, choose runtime posture, and name the early coverage limits. Write `scope.md` before moving on to `inventory.md`.
+
 ## What To Decide
 
 - What is the target in practice: web app, API, supporting service, CLI-first system, background worker, library, or mixed repo?
@@ -10,6 +12,12 @@ Write `bootstrap/scope.md` first. This file decides how later phases should trea
 - What is the biggest blocker if the posture is not `local runtime`?
 - What working-copy or safety constraints should later phases honor?
 - What blocking assumptions or coverage limits should be called out early?
+
+Working-copy policy should be explicit when it matters:
+
+- whether later phases must avoid source-repo virtualenvs or package installs
+- whether copied runtime residue should be treated as sensitive
+- whether local runtime should rebuild its own environment inside the working copy
 
 Be explicit when the repo is not a classic web application. A good scope file prevents later phases from pretending exploitability that the target shape does not support.
 

@@ -58,17 +58,20 @@ This is not a vulnerability step. It is an operator-facing optimization pass for
 Required sections:
 
 1. `# Optimization`
-2. `## Step Fit`
-3. `## Hot Paths Or Cost Centers Reviewed`
-4. `## LOW RISK HIGH REWARD Wins`
-5. `## Deferred Or Higher-Risk Ideas`
-6. `## Validation Notes`
-7. `## Why This Step Stayed Quiet` when there are no material wins
+2. `## Summary`
+3. `## What We Looked Into`
+4. `## Issues We Found And Verified`
+5. `## General Concerns We Found And Verified`
+6. `## Misc Notes`
 
-`## LOW RISK HIGH REWARD Wins` should be concrete. For each win, include:
+All sections should be flat lists.
 
-- `Issue`
-- `Why It Costs Time Or Scale`
-- `Lowest-Risk Improvement`
-- `Expected Gain`
-- `Where It Lives`
+In this step:
+
+- `## Issues We Found And Verified` will usually be empty
+- `## General Concerns We Found And Verified` is where verified `LOW RISK HIGH REWARD` wins belong
+
+Also maintain:
+
+- `hunt/artifacts/optimization/candidates_log.md`
+- `hunt/artifacts/optimization/verified_log.md`

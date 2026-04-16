@@ -37,18 +37,15 @@
 Required sections:
 
 1. `# Auth`
-2. `## Domain Fit`
-3. `## Enumeration`
-4. `## Reviewed Surfaces`
-5. `## Findings`
-6. `## Reviewed And Found Safe`
-7. `## Hardening Notes`
-8. `## Trust-Model Notes`
-9. `## Validation Notes`
-10. `## Why This Step Stayed Quiet` when there are no material findings
+2. `## Summary`
+3. `## What We Looked Into`
+4. `## Issues We Found And Verified`
+5. `## General Concerns We Found And Verified`
+6. `## Misc Notes`
 
-`## Findings` should distinguish:
+All sections should be flat lists.
 
-- `confirmed`
-- `strong-code-evidence`
-- `needs-runtime-validation`
+Also maintain:
+
+- `hunt/artifacts/auth/candidates_log.md`
+- `hunt/artifacts/auth/verified_log.md`

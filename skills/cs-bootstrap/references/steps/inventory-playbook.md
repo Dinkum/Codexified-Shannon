@@ -2,6 +2,8 @@
 
 Use this step to capture the factual repo context that drives later review.
 
+This is the second bootstrap checkpoint. Use `scope.md` as the guardrail, gather the factual runtime and repo-shape context, then write `inventory.md` before doing the deeper attack mapping in `recon.md`.
+
 ## Questions To Answer Early
 
 - What actually starts in production or local dev?

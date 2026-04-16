@@ -2,7 +2,9 @@
 
 ## Purpose
 
-Use this step for meaningful issues that do not fit cleanly into injection, xss, auth, ssrf, or authz.
+Use this step for meaningful issues that do not fit cleanly into injection, xss, auth, ssrf, or authz. Get clever and dig through the app for any not already addressed issues or weak spots!
+
+This is your place to have free reign and test out and look into anything you wish!
 
 ## Start Here
 
@@ -42,7 +44,7 @@ For each serious invariant, leave behind:
 - `Where Enforced`: the code, helper, middleware, or state machine that should uphold it
 - `Violation Attempt`: the concrete way an attacker or untrusted actor would try to break it
 - `Cheapest Proof Path`: trace only, existing test, small harness, or localhost request
-- `Verdict`: `safe`, `confirmed`, `strong-code-evidence`, or `needs-runtime-validation`
+- `Verdict`: `safe`, `runtime-confirmed`, or `code-supported`
 
 Do not invent fuzzers or giant harnesses just to satisfy the idea. Small, repo-specific violation attempts are enough.
 
@@ -69,24 +71,21 @@ Do not invent fuzzers or giant harnesses just to satisfy the idea. Small, repo-s
 Required sections:
 
 1. `# General`
-2. `## Domain Fit`
-3. `## Recon And Data-Flow Leads Consumed`
-4. `## Business Logic Invariants Tested`
-5. `## Enumeration`
-6. `## Reviewed Surfaces`
-7. `## Findings`
-8. `## Reviewed And Found Safe`
-9. `## Hardening Notes`
-10. `## Trust-Model Notes`
-11. `## Validation Notes`
-12. `## Why This Step Stayed Quiet` when there are no material findings
+2. `## Summary`
+3. `## What We Looked Into`
+4. `## Issues We Found And Verified`
+5. `## General Concerns We Found And Verified`
+6. `## Misc Notes`
 
-`## Findings` should distinguish:
+All sections should be flat lists.
 
-- `confirmed`
-- `strong-code-evidence`
-- `needs-runtime-validation`
+In this step:
 
-`## Recon And Data-Flow Leads Consumed` should note which static pressure points, universal-attack-map leftovers, or `hunt/data-flow.md` traces were actually carried into this step.
+- `## What We Looked Into` should note the universal-attack-map leftovers, static pressure points, and business-logic invariants actually consumed
+- `## Issues We Found And Verified` should carry real business-logic, information-disclosure, secrets, or other repo-specific issues
+- `## General Concerns We Found And Verified` should carry trust-model, hardening, and posture concerns that survived review
 
-`## Business Logic Invariants Tested` should be concrete. For each serious invariant, include the invariant, where it is enforced, the attempted violation path, and the verdict.
+Also maintain:
+
+- `hunt/artifacts/general/candidates_log.md`
+- `hunt/artifacts/general/verified_log.md`

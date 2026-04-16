@@ -25,6 +25,8 @@ The source repository provided by the user is read-only for scan purposes.
 - Never edit, build into, clean, install into, or otherwise mutate the original source repository.
 - Any command that can write files, install dependencies, generate build output, start services, run migrations, or create temp state must run against the copied repo.
 - Use the original source repo for reference only when needed; use the copied repo for execution.
+- Never execute binaries, interpreters, virtualenvs, `node_modules/.bin` tools, lockstep services, or other runtime state from the original source repo after the copy is made.
+- If a runtime check needs a Python env, Node install, local service, or helper binary, create or install it inside the working copy or use ordinary system tooling, not the source repo's existing environment.
 
 If local runtime validation is useful, start the app or services from the copied repo and probe that local instance only.
 
@@ -56,8 +58,8 @@ If local runtime validation is useful, start the app or services from the copied
   - conclusion
 - Runtime evidence is stronger than static evidence, but static evidence is still valuable when the repo shape prevents safe local proof.
 - Preserve the distinction between proof state and report class:
-  - proof state: `confirmed`, `strong-code-evidence`, `needs-runtime-validation`, `safe`
-  - report class: `confirmed`, `hardening`, `trust-model`, `out-of-scope-but-notable`
+  - proof state: `runtime-confirmed`, `code-supported`, `safe`
+  - report class: `finding`, `hardening`, `trust-model`, `out-of-scope-but-notable`
 
 ## Investigation Priorities
 
@@ -80,7 +82,9 @@ The scanner uses a two-tier toolkit. Tier A is required at scan start. Tier B is
 
 `rg`, `fd`, `jq`, `yq`, `git`, `semgrep`, `curl`
 
-If any Tier A tool is missing at scan start, abort and surface the install command (`brew install ripgrep fd jq yq git semgrep curl` on macOS, or the platform equivalent). Do not continue with degraded baseline tooling.
+If any Tier A tool is missing at scan start, attempt the platform-appropriate install command (`brew install ripgrep fd jq yq git semgrep curl` on macOS, or the platform equivalent) so approval or denial is explicit. If the install is denied or fails, stop instead of continuing with degraded baseline tooling.
+
+When running `semgrep`, point `HOME`, `SEMGREP_USER_HOME`, `XDG_CONFIG_HOME`, and `XDG_CACHE_HOME` at a writable scan-local directory under `scratch/`. Do not let it default to `~/.semgrep`, which often fails under sandboxed runs.
 
 ### Tier B — propose when relevant
 
@@ -105,14 +109,13 @@ Prefer repo-native test, lint, and audit commands when the target project alread
 After bootstrap detects the stack and the likely validation shape, but before hunt starts:
 
 1. Build one `useful for this scan` Tier B list with one-line repo-tied justification per tool.
-2. Surface one batched approval request that includes:
-   - the proposed tools
-   - the install command for the operator's platform
-   - what coverage or convenience gets skipped if the tools are not approved
-   - any repo-specific dependencies or local services needed to start the app when bootstrap chooses `local runtime`, but only when they are ordinary developer tooling or local services reasonable to install on a personal computer
-3. Honor the response.
-   - install only what was approved
-   - never auto-install
+2. Attempt one batched install command for the operator's platform that covers the proposed Tier B tools and any reasonable repo-specific dependencies or local services needed for `local runtime`.
+   - do this through the normal tool/terminal path so approval or denial is explicit
+   - do not merely print the install command and wait
+3. Honor the result.
+   - if the install succeeds, use the tools
+   - if it is denied or fails, record exactly what coverage or convenience is skipped
+   - do not split this into multiple piecemeal install attempts
    - never re-prompt within the same scan
 
 Do not use Playwright. Do not rely on browser automation. Do not scan public internet targets from this bundle.
@@ -144,6 +147,8 @@ When the user says `scan <LOCAL REPO PATH>`:
 
 Do not skip a phase. Do not start `$cs-hunt` until `$cs-bootstrap` has written its required artifacts. Do not start `$cs-report` until `$cs-hunt` has written `hunt/data-flow.md`, the seven later hunt step files, and `hunt/hunt.md`.
 
+Note: if `reports/<repo>-<YYYY-MM-DD>/` already exists, increment with `reports/<repo>-<YYYY-MM-DD><n>/`
+
 ## Workflow Model
 
 This package uses a three-phase, Codex-first local workflow:
@@ -170,6 +175,7 @@ On the operator's own trusted code, prefer `local runtime` when bootstrap judges
 When runtime is used:
 
 - run only from the working copy
+- do not borrow `.venv`, `node_modules`, generated binaries, or running services from the source repo
 - prefer installs only when lockfiles exist
 - inspect obvious install or build hooks before installing
 - do not connect to non-local external services
@@ -211,6 +217,23 @@ Minimum content:
 
 Purpose: investigate the repo through a data-flow step, directed security domains, one generic catch-all step, and one optimization step.
 
+Hunt step structure:
+
+- Each hunt step owns three artifacts:
+  - `hunt/<step>.md`
+  - `hunt/artifacts/<step>/candidates_log.md`
+  - `hunt/artifacts/<step>/verified_log.md`
+- Each hunt domain is a real step, not a lightweight checkbox. Do not move on until that domain has been thoroughly explored, the candidate set has been pressure-tested, and the final step markdown has been written.
+- `candidates_log.md` is the append-only investigation scratchpad.
+  - Use it to collect plausible issues, weak controls, trust-boundary concerns, and other leads while casting a wide net.
+  - It is not polished prose and it is not a closed set.
+- `verified_log.md` is the append-only verification scratchpad.
+  - Use it to record what happened when each candidate was checked.
+  - Mark whether it survived as an issue, downgraded into a concern, held up as safe, or died as a dead end.
+  - If verification uncovers a new plausible path, append it back into `candidates_log.md`, investigate it in the same step, and then record the outcome here.
+- `hunt/<step>.md` is the operator-facing step writeup synthesized from both logs and the actual step narrative.
+- Keep the scratchpads as working memory. Keep the markdown file readable and end-user-facing.
+
 Required hunt step order:
 
 1. `data-flow.md`
@@ -226,20 +249,27 @@ Execution rules:
 
 - Read all bootstrap artifacts before starting any step.
 - Treat `bootstrap/handoff.json` as a compact index, not as a substitute for the markdown handoff.
+- Treat hunt as a consecutive sequence of real domain steps. Do not investigate all steps first and bulk-write them at the end.
+- For each hunt step, complete these mandatory phases in order:
+  1. `Investigation`: explore the domain thoroughly, using the step-specific guidance and appending plausible issues or concerns to `candidates_log.md`
+  2. `Verification`: perform a separate verification phase and append outcomes bit by bit to `verified_log.md`
+  3. `Writeup`: write the final step markdown synthesized from both logs and what happened
 - Run `data-flow.md` first so later steps inherit the strongest source-to-sink or source-to-boundary paths.
 - Gate the five directed domain steps on `bootstrap/scope.md`.
 - Honor bootstrap's declared runtime posture.
 - Before writing a step file, run a structured enumeration sweep from the working copy:
   - targeted `rg` searches using the domain baseline patterns
   - `semgrep` when it is available and meaningful for the stack
+- Use the hunt-step structure above for `candidates_log.md`, `verified_log.md`, and the final step markdown.
 - Save raw support under `hunt/artifacts/<step>/` only when it materially helps.
 - Every step should cover:
-  - domain fit
-  - reviewed surfaces
-  - what looked promising
-  - what held up as safe
-  - what remains unresolved
-  - any confirmed findings, hardening notes, or trust-model notes
+  - `Summary`
+  - `What We Looked Into`
+  - `Issues We Found And Verified`
+  - `General Concerns We Found And Verified`
+  - `Misc Notes`
+- Keep those subsections as flat lists.
+- In `General Concerns We Found And Verified`, include the concern, where it lives, why it matters, and the suggested hardening step.
 - `data-flow.md` maps sources to sinks or protected actions, judges whether the actual guard or sanitization is sufficient in context, and routes the strongest paths into the later domain steps.
 - `general.md` is the catch-all for business logic, info disclosure, secrets or crypto issues, dependency risk worth surfacing, race or state problems, and repo-specific weirdness that do not fit the five directed domains.
 - Business-logic security testing lives in `general.md`:
@@ -256,6 +286,16 @@ Execution rules:
   - include the biggest unresolved paths
   - include notable hardening, trust-model, and optimization carry-forward notes
 
+Step markdown structure:
+
+- `Summary`
+- `What We Looked Into`
+- `Issues We Found And Verified`
+- `General Concerns We Found And Verified`
+- `Misc Notes`
+
+Keep those subsections as flat lists.
+
 Required outputs:
 
 - `hunt/data-flow.md`
@@ -267,10 +307,22 @@ Required outputs:
 - `hunt/general.md`
 - `hunt/optimization.md`
 - `hunt/hunt.md`
-
-Optional raw support:
-
-- `hunt/artifacts/<step>/...`
+- `hunt/artifacts/data-flow/candidates_log.md`
+- `hunt/artifacts/data-flow/verified_log.md`
+- `hunt/artifacts/injection/candidates_log.md`
+- `hunt/artifacts/injection/verified_log.md`
+- `hunt/artifacts/xss/candidates_log.md`
+- `hunt/artifacts/xss/verified_log.md`
+- `hunt/artifacts/auth/candidates_log.md`
+- `hunt/artifacts/auth/verified_log.md`
+- `hunt/artifacts/ssrf/candidates_log.md`
+- `hunt/artifacts/ssrf/verified_log.md`
+- `hunt/artifacts/authz/candidates_log.md`
+- `hunt/artifacts/authz/verified_log.md`
+- `hunt/artifacts/general/candidates_log.md`
+- `hunt/artifacts/general/verified_log.md`
+- `hunt/artifacts/optimization/candidates_log.md`
+- `hunt/artifacts/optimization/verified_log.md`
 
 ### 3. `$cs-report`
 
@@ -285,13 +337,14 @@ Reporting rules:
 - Use bootstrap for scope, architecture, trust-boundary, and runtime context.
 - Use `hunt/data-flow.md`, the seven later hunt step files, and `hunt/hunt.md` for the security narrative.
 - Pull raw artifacts only when they materially strengthen a claim.
-- Include a `## Prioritized Findings` section for confirmed `P0` and `P1` items only.
+- Include a `## Prioritized Findings` section for runtime-confirmed `P0` and `P1` items only.
 - Use the wording in `cs-report-output-shape.md` as the canonical report contract rather than paraphrasing it.
 - Before drafting the report, do one quick pass through all bootstrap and hunt markdown outputs.
 - Use `## Context (Bootstrap/Meta)` for what was scanned and what could not be checked.
 - In `## Hunt Summary`, include one concise bullet for every hunt step, including `optimization.md`.
 - Use `## Findings By Track` for the per-step detail in scan order.
-- Use `## Hardening` for low-risk, high-reward resilience or optimization improvements.
+- Build `## Findings By Track` from each step's `## Issues We Found And Verified`.
+- Build `## Hardening` from bootstrap hardening leads plus each step's `## General Concerns We Found And Verified`.
 - Include reviewed-safe components so the report shows real coverage, not just problems.
 - End with `## What's Next` as the short operator handoff.
 - Add `## Misc Notes` only when there are genuinely useful leftovers that do not fit neatly elsewhere.

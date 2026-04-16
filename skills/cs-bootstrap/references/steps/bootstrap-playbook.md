@@ -2,6 +2,8 @@
 
 Use this step to turn `inventory.md` and `recon.md` into clear hunt direction.
 
+This is the final bootstrap markdown checkpoint. Do not use it to restate raw recon; use it to synthesize the earlier artifacts into clear hunt direction, hardening priorities, and a crisp starting point.
+
 ## What Good Synthesis Looks Like
 
 - Point hunt at the highest-reward paths first.
@@ -9,7 +11,7 @@ Use this step to turn `inventory.md` and `recon.md` into clear hunt direction.
 - Call out likely false trails so hunt does not waste time rediscovering them.
 - Name pressure points where one weak assumption could break an important boundary.
 - Pull forward the static pressure points that matter most so hunt does not have to rediscover them.
-- Pull forward the highest-value hardening leads so they survive even when no later step turns them into confirmed findings.
+- Pull forward the highest-value hardening leads so they survive even when no later step turns them into reportable findings.
 - Leave a crisp starting point so hunt can begin without re-summarizing bootstrap.
 
 ## Writing Tips

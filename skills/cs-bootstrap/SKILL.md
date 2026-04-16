@@ -15,6 +15,8 @@ Treat the contract as scaffolding, not a forced template. Keep the required hand
 
 Use `references/cs-bootstrap-playbook.md` for the shared bootstrap method and `bootstrap/handoff.json` shape. Use the matching file under `references/steps/` for the current bootstrap artifact's guidance and output shape.
 
+Treat bootstrap as a sequence of checkpoints, not one broad recon sweep followed by a bulk write. Fully complete the current bootstrap artifact to a solid, operator-usable standard before moving to the next one. Later steps may refine earlier files when new evidence materially changes them, but do not defer all bootstrap writing until the end.
+
 ## Inputs
 
 - Absolute source repository path
@@ -35,7 +37,9 @@ Tier A must be present at scan start:
 - `semgrep`
 - `curl`
 
-If any Tier A tool is missing, stop and surface the install command instead of continuing with degraded baseline tooling.
+If any Tier A tool is missing, attempt the install command so approval or denial is explicit. If the install is denied or fails, stop instead of continuing with degraded baseline tooling.
+
+When invoking `semgrep`, point `HOME`, `SEMGREP_USER_HOME`, `XDG_CONFIG_HOME`, and `XDG_CACHE_HOME` at a writable scan-local directory, typically under `scratch/`. Do not let it default to `~/.semgrep`.
 
 Prefer these core tools during bootstrap work:
 
@@ -47,7 +51,7 @@ Prefer these core tools during bootstrap work:
 - `semgrep` when it materially reduces guesswork
 - package-manager-native audit tooling when it is available and low-friction, such as `npm audit`, `pip-audit`, `cargo audit`, or `govulncheck`
 
-After inventory and recon, build one repo-specific Tier B proposal list for optional tools that would materially improve the scan. Keep it to one batched request before hunt starts. Never auto-install. Never re-prompt within the same scan.
+After inventory and recon, build one repo-specific Tier B list for optional tools that would materially improve the scan, then attempt one batched install command before hunt starts. Do not just print suggested install commands. Never split this into repeated install attempts within the same scan.
 
 That same batched request may include repo-specific dependencies or local services needed to start the app when bootstrap selects `local runtime`, but only when they are ordinary developer tooling or local services reasonable to install on a personal computer.
 
@@ -95,12 +99,14 @@ Do not dump a long checklist into the deliverables.
 3. Create the working copy at `reports/<repo>-<YYYY-MM-DD>/repo/`.
    - Do not mutate the source repo.
    - All later build, run, test, and probe actions must use the working copy.
+   - Do not use the source repo's `.venv`, `node_modules`, built artifacts, or already-running services as scan infrastructure once the copy exists.
 4. Write `bootstrap/scope.md` first.
    - classify the target as web app, API, supporting service, CLI-first system, or mixed
    - explicitly note which directed hunt tracks are fully applicable, partially applicable, or largely inapplicable
    - choose one runtime posture: `code-only`, `read-only runtime`, or `local runtime`
    - give a one-line justification and the biggest blocker if the posture is not `local runtime`
    - use `references/steps/scope-playbook.md`
+   - do not start inventory or recon writeup first
 5. Build the repo inventory.
    - languages, frameworks, package managers
    - dependency lockfiles and audit tooling availability
@@ -110,6 +116,7 @@ Do not dump a long checklist into the deliverables.
    - infrastructure and security-relevant config
    - service map or runtime units
    - use `references/steps/inventory-playbook.md`
+   - write `bootstrap/inventory.md` before moving on to recon
 6. Map the security shape.
    - attacker-controlled inputs and where they first land
    - main ingress and egress points
@@ -117,6 +124,7 @@ Do not dump a long checklist into the deliverables.
    - assumptions later phases should try to break
    - write this into `recon.md` as `## Universal Attack Mapping`, not as loose notes
    - use `references/steps/recon-playbook.md`
+   - write `bootstrap/recon.md` before bootstrap synthesis
 7. Run a cheap dependency-surface pass.
    - identify lockfiles and direct package ecosystems
    - run audit tooling when it is installed, the lockfile exists, and the command is unlikely to become a time sink
@@ -132,8 +140,8 @@ Do not dump a long checklist into the deliverables.
    - use the detected stack, lockfiles, infra files, and likely validation path
    - produce one `useful for this scan` list with one-line justification per tool
    - include reasonable repo-specific dependencies or local services needed to start the app when the chosen runtime posture is `local runtime`
-   - include the install command and what gets skipped if the operator declines
-   - do not install tools here; this step only prepares the batched approval request
+   - attempt one batched install command rather than only describing it
+   - if approval is denied or the install fails, record what gets skipped and continue with the reduced tool set
 10. Load only the matching vendored best-practice refs when they help.
 11. Write `bootstrap/bootstrap.md`.
    - use `references/steps/bootstrap-playbook.md`

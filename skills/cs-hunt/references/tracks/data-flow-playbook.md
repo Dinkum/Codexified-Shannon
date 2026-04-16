@@ -61,26 +61,21 @@ This is not a vulnerability class by itself. It is a routing and reasoning step 
 Required sections:
 
 1. `# Data Flow`
-2. `## Domain Fit`
-3. `## Sources Reviewed`
-4. `## Sink And Protected-Action Families Reviewed`
-5. `## Candidate Traces`
-6. `## Guard And Sanitization Review`
-7. `## Domain Routing`
-8. `## Highest-Value Paths`
-9. `## Hardening Notes`
-10. `## Validation Notes`
-11. `## Why This Step Stayed Quiet` when there are no material paths
+2. `## Summary`
+3. `## What We Looked Into`
+4. `## Issues We Found And Verified`
+5. `## General Concerns We Found And Verified`
+6. `## Misc Notes`
 
-`## Candidate Traces` should be concrete. For each serious path, include:
+All sections should be flat lists.
 
-- `Source`
-- `Transforms`
-- `Guard Or Sanitizer`
-- `Sink Or Protected Action`
-- `Sufficiency Judgment`
-- `Mapped Step`
-- `Cheapest Proof Path`
-- `Verdict`
+In this step:
 
-Use `## Hardening Notes` for guard or sanitization improvements that would materially reduce risk even when the current path does not rise to a confirmed finding.
+- `## What We Looked Into` should cover the main source families, sink families, and protected actions reviewed
+- `## Issues We Found And Verified` should include routing-worthy paths that survived review
+- `## General Concerns We Found And Verified` should include guard or sanitization weaknesses that matter even when they are not yet reportable issues
+
+Also maintain:
+
+- `hunt/artifacts/data-flow/candidates_log.md`
+- `hunt/artifacts/data-flow/verified_log.md`
