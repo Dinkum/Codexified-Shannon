@@ -61,15 +61,16 @@ Required sections:
 2. `## Summary`
 3. `## What We Looked Into`
 4. `## Issues We Found And Verified`
-5. `## General Concerns We Found And Verified`
+5. `## General Concerns And Hardening Suggestions We Verified`
 6. `## Misc Notes`
 
 All sections should be flat lists.
 
 In this step:
 
-- `## Issues We Found And Verified` will usually be empty
-- `## General Concerns We Found And Verified` is where verified `LOW RISK HIGH REWARD` wins belong
+- verified `LOW RISK HIGH REWARD` wins may land in either section
+- use `## Issues We Found And Verified` when the win is specific and bounded
+- use `## General Concerns And Hardening Suggestions We Verified` when the win is broader or cross-cutting
 
 Also maintain:
 

@@ -74,7 +74,7 @@ Required sections:
 2. `## Summary`
 3. `## What We Looked Into`
 4. `## Issues We Found And Verified`
-5. `## General Concerns We Found And Verified`
+5. `## General Concerns And Hardening Suggestions We Verified`
 6. `## Misc Notes`
 
 All sections should be flat lists.
@@ -83,7 +83,7 @@ In this step:
 
 - `## What We Looked Into` should note the universal-attack-map leftovers, static pressure points, and business-logic invariants actually consumed
 - `## Issues We Found And Verified` should carry real business-logic, information-disclosure, secrets, or other repo-specific issues
-- `## General Concerns We Found And Verified` should carry trust-model, hardening, and posture concerns that survived review
+- `## General Concerns And Hardening Suggestions We Verified` should carry verified trust-model, hardening, and posture concerns that survived review
 
 Also maintain:
 

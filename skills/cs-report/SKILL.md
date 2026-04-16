@@ -63,8 +63,8 @@ Use `references/cs-report-output-shape.md` as the required report structure.
    - `runtime-confirmed` items stay findings
    - material `code-supported` items also stay findings
    - do not bury a concrete issue in `#### Summary` just because runtime proof was incomplete
-7. `## Prioritized Findings` lists runtime-confirmed `P0` and `P1` only.
-8. `## Hardening` is built from bootstrap hardening leads plus each step's `## General Concerns We Found And Verified`.
+7. `## Prioritized Findings` lists all `P0` and `P1` findings, whether `runtime-confirmed` or `code-supported`.
+8. `## Hardening` is built from bootstrap hardening leads plus each step's `## General Concerns And Hardening Suggestions We Verified`.
 9. `## Misc Notes` is optional and should appear only when something useful does not fit elsewhere.
 10. Cite raw artifacts only when they materially strengthen a claim.
 11. Keep the output local-only.
@@ -87,7 +87,7 @@ Use `references/cs-report-output-shape.md` as the required report structure.
   - why it matters in practice
 - Reserve `#### Summary` for step-level narrative. If a step surfaced a concrete issue with operator action attached, promote it into `#### Finding`.
 - Build per-step findings from `## Issues We Found And Verified`, not from stray narrative in `## Summary` or `## Misc Notes`.
-- Build per-step hardening from `## General Concerns We Found And Verified`.
+- Build per-step hardening from `## General Concerns And Hardening Suggestions We Verified`.
 - Build `## Reviewed And Found Safe` from safe calls captured in each step's `verified_log.md` plus clearly safe bullets in `## What We Looked Into`.
 - Keep `## Prioritized Findings` short. It is a triage list, not a second copy of the full report.
 - In `## Hardening`, pull forward the highest-value notes from bootstrap and hunt, then explain what to do, where it lives, and why it matters.

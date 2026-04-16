@@ -15,8 +15,8 @@ Use this file for the shared hunt method. Then load the matching file under `ref
 4. Run `data-flow.md` first and route the strongest paths into the later domain steps.
 5. For the directed domain steps, check `bootstrap/scope.md` before deep review.
 6. Treat each hunt domain as a full step with three mandatory consecutive phases:
-   - `Investigation`: use the current step playbook to explore the domain thoroughly, cast a wide net, and append plausible issues or concerns to `hunt/artifacts/<step>/candidates_log.md`
-   - `Verification`: work through candidates one by one, verify or kill them, and append the outcome bit by bit to `hunt/artifacts/<step>/verified_log.md`
+   - `Investigation`: use the current step playbook to explore the domain thoroughly, cast a wide net, and append plausible issues, general concerns, or hardening suggestions to `hunt/artifacts/<step>/candidates_log.md`
+   - `Verification`: work through candidates one by one, verify or kill them, and append the outcome bit by bit to `hunt/artifacts/<step>/verified_log.md`, including verified general concerns and hardening suggestions
    - `Writeup`: write one operator-facing markdown file for the step, synthesized from both logs and what actually happened during investigation and verification
 7. During the `Verification` phase, if a new plausible issue or concern appears:
    - append it to `candidates_log.md`
@@ -28,8 +28,8 @@ Use this file for the shared hunt method. Then load the matching file under `ref
    - every subsection in the step markdown should be a flat list, not prose blocks
    - use `## What We Looked Into` to name the reviewed surfaces and, when helpful, briefly note which ones held up as safe
    - treat hardening as a first-class output, not as leftover report polish
-   - any material issue with a concrete path belongs in `## Issues We Found And Verified`
-   - any material hardening or trust-boundary concern belongs in `## General Concerns We Found And Verified`
+   - any material issue with a concrete, bounded path you can point to belongs in `## Issues We Found And Verified`
+   - any broader hardening, maintenance, trust-boundary, posture, duplication, bloat, or codebase-wide concern belongs in `## General Concerns And Hardening Suggestions We Verified`
    - every concern should include the concern, where it lives, why it matters, and the suggested hardening step
    - reserve `## Summary` for short orientation bullets, not for hiding the actual issue load
 10. Run `optimization.md` last and keep it focused on `LOW RISK HIGH REWARD` wins rather than broad rewrite ideas.
@@ -79,11 +79,11 @@ Good enumeration widens coverage; it does not replace reasoning.
 Every hunt step must keep two append-only scratchpads under `hunt/artifacts/<step>/`:
 
 - `candidates_log.md`
-  - pass-1 collection of plausible issues and concerns
+  - pass-1 collection of plausible issues, general concerns, and hardening suggestions
   - append as you go; do not rewrite it into a polished report
 - `verified_log.md`
   - pass-2 outcomes for each candidate
-  - append whether the candidate was kept, downgraded to a concern, disproved, or left unresolved
+  - append whether the candidate was kept, downgraded to a concern, confirmed as a hardening suggestion, disproved, or left unresolved
   - if verification uncovers a new candidate, append that too and keep going until the new path is resolved or explicitly left open
 
 These logs are working memory for hunt, not end-user prose. The final step markdown should be written only after the investigation and verification substeps are both complete.
@@ -108,6 +108,8 @@ When moving a candidate from `candidates_log.md` to `verified_log.md`, capture e
 - what path or invariant you checked
 - what evidence changed your confidence
 - whether it landed as an issue, a concern, a safe call, or a dead end
+  - `issue`: specific, bounded, and pointable
+  - `concern`: broader verified hardening or maintenance guidance, even when it spans multiple files or the wider codebase
 - what follow-up would be needed if runtime proof is still missing
 
 ## Trace Blocks

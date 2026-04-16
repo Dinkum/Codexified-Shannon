@@ -12,7 +12,7 @@ Use the following as the canonical report contract to structure your final repor
 A short narrative summary. Explain what kind of app this is, what was scanned, what the headline finding is, and how worried the operator should be. Write this for a decision-maker: minimal jargon, no per-track enumeration. End with the single sentence the operator should remember if they read nothing else.
 
 ## Prioritized Findings
-Runtime-confirmed `P0` and `P1` only, pulled across all steps. For each, give the title, source step, a one-line reason it cannot wait, and a fix direction.
+All runtime or code confirmed `P0` and `P1` , pulled across all steps. For each, give the title, source step, a one-line reason it cannot wait, and a fix direction.
 
 If none exist, say so plainly and name the strongest reviewed control as context. An empty section here is a real result.
 
@@ -81,16 +81,9 @@ A short handoff. The 1-3 things to do next, the biggest unresolved uncertainty, 
 - Hunt context comes from `hunt/data-flow.md`, the seven later hunt step files, and `hunt/hunt.md`.
 - Raw support comes from `hunt/artifacts/` or top-level `artifacts/` only when it materially strengthens a claim.
 - Per-step findings come from `## Issues We Found And Verified`.
-- Per-step hardening comes from `## General Concerns We Found And Verified`.
+- Per-step hardening comes from `## General Concerns And Hardening Suggestions We Verified`.
 - Reviewed-safe surfaces come from safe calls in each step's `verified_log.md` plus clearly safe bullets in `## What We Looked Into`.
-- `## Hunt Summary` should include one concise bullet for every hunt step in scan order:
-  - `data-flow`
-  - `injection`
-  - `xss`
-  - `auth`
-  - `ssrf`
-  - `authz`
-  - `general`
-  - `optimization`
+- `## Hunt Summary` should be a technically informed narrative/prose summary of the hunt phase, not a per-step enumeration.
+- Use it to call out the biggest themes, cross-step chains, shared-root issues, and overall hunt shape.
 - `## Hardening` should be built from bootstrap hardening leads, per-step hardening notes, and low-risk, high-reward engineering or resilience suggestions.
 - `## Misc Notes` is optional and should usually be absent.

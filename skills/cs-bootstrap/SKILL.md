@@ -11,11 +11,11 @@ description: Create the bootstrap phase for a local-only Codex security scan. Us
 
 Prefer code and config as ground truth. Use repo-local evidence, not assumptions, screenshots, or browser automation.
 
-Treat the contract as scaffolding, not a forced template. Keep the required handoff information, but adapt the framing when the repo is a worker, CLI, monorepo, library-heavy service, or anything else that does not behave like a standard web app.
+Keep the required handoff information, but adapt the framing when the repo is a worker, CLI, monorepo, library-heavy service, or anything else that does not behave like a standard web app.
 
 Use `references/cs-bootstrap-playbook.md` for the shared bootstrap method and `bootstrap/handoff.json` shape. Use the matching file under `references/steps/` for the current bootstrap artifact's guidance and output shape.
 
-Treat bootstrap as a sequence of checkpoints, not one broad recon sweep followed by a bulk write. Fully complete the current bootstrap artifact to a solid, operator-usable standard before moving to the next one. Later steps may refine earlier files when new evidence materially changes them, but do not defer all bootstrap writing until the end.
+Treat bootstrap as a sequence of checkpoints. Fully complete the current bootstrap artifact before moving to the next one. Later steps may refine earlier files when new evidence materially changes them, but do not defer all bootstrap writing until the end.
 
 ## Inputs
 
@@ -94,20 +94,16 @@ Do not dump a long checklist into the deliverables.
 
 ## Workflow
 
-1. Resolve the target repo path and create the scan directories if they do not already exist.
-2. Read any target-repo `AGENTS.md` files that apply before doing analysis.
-3. Create the working copy at `reports/<repo>-<YYYY-MM-DD-HH-MM>/repo/`.
-   - Do not mutate the source repo.
-   - All later build, run, test, and probe actions must use the working copy.
-   - Do not use the source repo's `.venv`, `node_modules`, built artifacts, or already-running services as scan infrastructure once the copy exists.
-4. Write `bootstrap/scope.md` first.
+1. Read any target-repo `AGENTS.md` files that apply before doing analysis.
+2. Work from the scan working copy at `reports/<repo>-<YYYY-MM-DD-HH-MM>/repo/`.
+3. Write `bootstrap/scope.md` first.
    - classify the target as web app, API, supporting service, CLI-first system, or mixed
    - explicitly note which directed hunt tracks are fully applicable, partially applicable, or largely inapplicable
    - choose one runtime posture: `code-only`, `read-only runtime`, or `local runtime`
    - give a one-line justification and the biggest blocker if the posture is not `local runtime`
    - use `references/steps/scope-playbook.md`
    - do not start inventory or recon writeup first
-5. Build the repo inventory.
+4. Build the repo inventory.
    - languages, frameworks, package managers
    - dependency lockfiles and audit tooling availability
    - routing layers and entrypoints
@@ -117,7 +113,7 @@ Do not dump a long checklist into the deliverables.
    - service map or runtime units
    - use `references/steps/inventory-playbook.md`
    - write `bootstrap/inventory.md` before moving on to recon
-6. Map the security shape.
+5. Map the security shape.
    - attacker-controlled inputs and where they first land
    - main ingress and egress points
    - trust boundaries and privileged actions
@@ -125,33 +121,33 @@ Do not dump a long checklist into the deliverables.
    - write this into `recon.md` as `## Universal Attack Mapping`, not as loose notes
    - use `references/steps/recon-playbook.md`
    - write `bootstrap/recon.md` before bootstrap synthesis
-7. Run a cheap dependency-surface pass.
+6. Run a cheap dependency-surface pass.
    - identify lockfiles and direct package ecosystems
    - run audit tooling when it is installed, the lockfile exists, and the command is unlikely to become a time sink
    - if audit tooling is unavailable or the repo shape makes it noisy or misleading, say so explicitly
-8. Run a lightweight static pressure sweep.
+7. Run a lightweight static pressure sweep.
    - point issues such as weak crypto, hardcoded credentials, insecure config, disabled TLS verification, permissive CORS, dangerous debug flags, or weak randomness
    - secrets clues and dynamic credential handling that deserve later review
    - dependency hotspots worth later follow-up
    - business-logic invariants and state transitions that `general.md` should try to break
    - hardening leads where controls are absent, decentralized, weak by default, or likely to drift over time
    - write the useful results into `recon.md` and `bootstrap.md`; do not create a separate static artifact set
-9. Build the Tier B optional-tool proposal.
+8. Build the Tier B optional-tool proposal.
    - use the detected stack, lockfiles, infra files, and likely validation path
    - produce one `useful for this scan` list with one-line justification per tool
    - include reasonable repo-specific dependencies or local services needed to start the app when the chosen runtime posture is `local runtime`
    - attempt one batched install command rather than only describing it
    - if approval is denied or the install fails, record what gets skipped and continue with the reduced tool set
-10. If the chosen runtime posture is `local runtime`, attempt a minimal startup or smoke check before hunt starts.
+9. If the chosen runtime posture is `local runtime`, attempt a minimal startup or smoke check before hunt starts.
    - run only from the working copy
    - use the installed dependencies or local services from the batched install step when needed
    - prefer the narrowest viable start path over booting the whole world
    - record the actual command run, the actual localhost target reached, and any blockers that prevented startup or meaningful probing
    - if the startup path turns out to be unsafe, misleading, or too expensive, downgrade the posture and say so explicitly
-11. Load only the matching vendored best-practice refs when they help.
-12. Write `bootstrap/bootstrap.md`.
+10. Load only the matching vendored best-practice refs when they help.
+11. Write `bootstrap/bootstrap.md`.
    - use `references/steps/bootstrap-playbook.md`
-13. Write `bootstrap/handoff.json`.
+12. Write `bootstrap/handoff.json`.
    - use `references/cs-bootstrap-playbook.md`
 
 ## Tips

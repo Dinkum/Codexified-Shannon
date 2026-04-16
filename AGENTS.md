@@ -9,11 +9,21 @@ Use this package to run a local-only, white-box security review against a reposi
 ## Input
 A user will give you a local repo path to scan by something like "scan ~/Desktop/repo"
 
+## Workflow Laws
+
+- Follow this workflow exactly.
+- Do not skip ahead.
+- Do not investigate broadly and write artifacts later.
+- Phases are strictly serial. Within each phase, steps are strictly serial.
+- Do not defer artifact writing.
+- Do not plan to write bootstrap, hunt, or log artifacts later in one pass.
+- Append to `candidates_log.md` as you investigate. Continually, one candidate at a time.
+- Append to `verified_log.md` as each candidate is checked. Continually, one candidate at a time.
+- Do not wait until the end of the step to populate either log.
+- Do not reconstruct `candidates_log.md` or `verified_log.md` from memory after the fact.
+- Do not begin the next bootstrap or hunt step until the current step is complete and its required files are written.
+
 ## Workflow
-
-Follow this workflow exactly. Do not skip ahead. Do not investigate broadly and write artifacts later.
-
-Phases are strictly serial. Within each phase, steps are strictly serial.
 
 ### 0. Setup
 
@@ -122,8 +132,6 @@ Do not start Report until Hunt is fully complete.
 
 ## First Principles
 
-- Use structure as scaffolding, not handcuffs.
-- Do not over-hardcode or overconstrain the model. Lean into its intelligence and adapt to the repo in front of you.
 - Prefer a few high-signal artifacts over a large pile of brittle bookkeeping.
 - Use strong workflow discipline, not a line-by-line template.
 - When the target does not fit a default web-app shape, follow reality and explain the deviation directly.
@@ -225,48 +233,27 @@ After bootstrap detects the stack and the likely validation shape, but before hu
    - do not merely print the install command and wait
 3. Honor the result.
    - if the install succeeds, use the tools
+   - if a proposed install fails due to packaging-policy restrictions, retry once with another reasonable install method before treating the tool as skipped coverage
    - if it is denied or fails, record exactly what coverage or convenience is skipped
    - do not split this into multiple piecemeal install attempts
    - never re-prompt within the same scan
 
 Do not use Playwright. Do not rely on browser automation. Do not scan public internet targets from this bundle.
 
-## Entry Flow
+## Scan Layout
 
-When the user says `scan <LOCAL REPO PATH>`:
+Each scan lives under `reports/<repo>-<YYYY-MM-DD-HH-MM>/`:
 
-1. Resolve the path to an absolute local repository path and confirm it exists.
-2. Derive the repository slug and the current timestamp as `YYYY-MM-DD-HH-MM`, create `reports/<repo>-<YYYY-MM-DD-HH-MM>/` with these subdirectories, and copy the source repository into `reports/<repo>-<YYYY-MM-DD-HH-MM>/repo/`:
-   - `repo/`
-   - `bootstrap/`
-   - `hunt/`
-   - `hunt/artifacts/`
-   - `scratch/`
-   - `artifacts/`
-   `scratch/` is for temporary notes, throwaway harnesses, and intermediate exploration output.
-   `artifacts/` is for durable scan-level attachments that do not belong to one hunt track.
-   `hunt/artifacts/` is for raw track-specific support such as enumeration logs, harness output, or localhost captures.
-3. Run a cheap preflight:
-   - read any applicable `AGENTS.md`
-   - identify whether the target is a deployable web app/API, a supporting service, or mostly local tooling
-   - note any obvious coverage limits before deeper work begins
-4. Run the skills in this exact order:
-   - `$cs-bootstrap`
-   - `$cs-hunt`
-   - `$cs-report`
-5. Finish with the final markdown deliverable at `reports/<repo>-<YYYY-MM-DD-HH-MM>/report.md`.
+- `repo/`
+- `bootstrap/`
+- `hunt/`
+- `hunt/artifacts/`
+- `scratch/`
+- `artifacts/`
 
-Do not skip a phase. Do not start `$cs-hunt` until `$cs-bootstrap` has written its required artifacts. Do not start `$cs-report` until `$cs-hunt` has written `hunt/data-flow.md`, the seven later hunt step files, and `hunt/hunt.md`.
-
-## Workflow Model
-
-This package uses a three-phase, Codex-first local workflow:
-
-- `$cs-bootstrap` covers scoping, inventory, recon, and bootstrap synthesis.
-- `$cs-hunt` covers one data-flow step, five directed security domains, one generic catch-all step, and one optimization step.
-- `$cs-report` synthesizes the scan into one final report.
-
-The important thing to preserve is the discipline: scoped recon first, domain review second, report synthesis last.
+`scratch/` is for temporary notes, throwaway harnesses, and intermediate exploration output.
+`artifacts/` is for durable scan-level attachments that do not belong to one hunt step.
+`hunt/artifacts/` is for step-specific support such as enumeration logs, harness output, or localhost captures.
 
 ## Runtime Posture
 
@@ -303,173 +290,11 @@ When runtime is used:
 
 ## Phase Contract
 
-### 1. `$cs-bootstrap`
+Use this section only for phase-specific rules that are not already stated in `## Workflow Laws` or `## Workflow`.
 
-Purpose: prepare the hunt with factual repo context plus a concise security readout.
-
-Required outputs:
-
-- `bootstrap/scope.md`
-- `bootstrap/inventory.md`
-- `bootstrap/recon.md`
-- `bootstrap/bootstrap.md`
-- `bootstrap/handoff.json`
-
-Minimum content:
-
-- source repo path and working copy path
-- technology stack and repo shape
-- service map or runtime units
-- auth/session components
-- data stores and dependency surface
-- attacker-controlled inputs, trust boundaries, and privileged actions
-- framework expectations and assumptions to test when matching vendored refs exist
-- lightweight static pressure points such as point issues, secrets clues, dependency hotspots, and invariants to test
-- chosen runtime posture with one-line justification
-- runtime setup notes when the repo looks runnable
-- actual local-runtime outcome when `local runtime` was chosen:
-  - command run
-  - localhost target reached
-  - blockers if startup or probing failed
-- top review targets
-- high-reward investigation directions for hunt
-
-### 2. `$cs-hunt`
-
-Purpose: investigate the repo through a data-flow step, directed security domains, one generic catch-all step, and one optimization step.
-
-Hunt step structure:
-
-- Each hunt step owns three artifacts:
-  - `hunt/<step>.md`
-  - `hunt/artifacts/<step>/candidates_log.md`
-  - `hunt/artifacts/<step>/verified_log.md`
-- Each hunt domain is a real step, not a lightweight checkbox. Do not move on until that domain has been thoroughly explored, the candidate set has been pressure-tested, and the final step markdown has been written.
-- `candidates_log.md` is the append-only investigation scratchpad.
-  - Use it to collect plausible issues, weak controls, trust-boundary concerns, and other leads while casting a wide net.
-  - It is not polished prose and it is not a closed set.
-- `verified_log.md` is the append-only verification scratchpad.
-  - Use it to record what happened when each candidate was checked.
-  - Mark whether it survived as an issue, downgraded into a concern, held up as safe, or died as a dead end.
-  - If verification uncovers a new plausible path, append it back into `candidates_log.md`, investigate it in the same step, and then record the outcome here.
-- `hunt/<step>.md` is the operator-facing step writeup synthesized from both logs and the actual step narrative.
-- Keep the scratchpads as working memory. Keep the markdown file readable and end-user-facing.
-
-Required hunt step order:
-
-1. `data-flow.md`
-2. `injection.md`
-3. `xss.md`
-4. `auth.md`
-5. `ssrf.md`
-6. `authz.md`
-7. `general.md`
-8. `optimization.md`
-
-Execution rules:
-
-- Read all bootstrap artifacts before starting any step.
-- Treat `bootstrap/handoff.json` as a compact index, not as a substitute for the markdown handoff.
-- Treat hunt as a consecutive sequence of real domain steps. Do not investigate all steps first and bulk-write them at the end.
-- For each hunt step, complete these mandatory phases in order:
-  1. `Investigation`: explore the domain thoroughly, using the step-specific guidance and appending plausible issues or concerns to `candidates_log.md`
-  2. `Verification`: perform a separate verification phase and append outcomes bit by bit to `verified_log.md`
-  3. `Writeup`: write the final step markdown synthesized from both logs and what happened
-- Run `data-flow.md` first so later steps inherit the strongest source-to-sink or source-to-boundary paths.
-- Gate the five directed domain steps on `bootstrap/scope.md`.
-- Honor bootstrap's declared runtime posture.
-- Before writing a step file, run a structured enumeration sweep from the working copy:
-  - targeted `rg` searches using the domain baseline patterns
-  - `semgrep` when it is available and meaningful for the stack
-- Use the hunt-step structure above for `candidates_log.md`, `verified_log.md`, and the final step markdown.
-- Save raw support under `hunt/artifacts/<step>/` only when it materially helps.
-- Every step should cover:
-  - `Summary`
-  - `What We Looked Into`
-  - `Issues We Found And Verified`
-  - `General Concerns We Found And Verified`
-  - `Misc Notes`
-- Keep those subsections as flat lists.
-- In `General Concerns We Found And Verified`, include the concern, where it lives, why it matters, and the suggested hardening step.
-- `data-flow.md` maps sources to sinks or protected actions, judges whether the actual guard or sanitization is sufficient in context, and routes the strongest paths into the later domain steps.
-- `general.md` is the catch-all for business logic, info disclosure, secrets or crypto issues, dependency risk worth surfacing, race or state problems, and repo-specific weirdness that do not fit the five directed domains.
-- Business-logic security testing lives in `general.md`:
-  - infer important invariants from code and product shape
-  - design concrete violation attempts
-  - validate them with the cheapest credible local proof path
-- `optimization.md` runs after `general.md` and looks only for `LOW RISK HIGH REWARD` wins:
-  - avoidable O(n) or repeated work
-  - duplication or abstractions that cost more than they save
-  - efficiency gains that are cheap to implement and low-risk to land
-- After the eight hunt steps finish, write `hunt/hunt.md` as the aggregate hunt output.
-  - include step outcomes
-  - include cross-step chains
-  - include the biggest unresolved paths
-  - include notable hardening, trust-model, and optimization carry-forward notes
-
-Step markdown structure:
-
-- `Summary`
-- `What We Looked Into`
-- `Issues We Found And Verified`
-- `General Concerns We Found And Verified`
-- `Misc Notes`
-
-Keep those subsections as flat lists.
-
-Required outputs:
-
-- `hunt/data-flow.md`
-- `hunt/injection.md`
-- `hunt/xss.md`
-- `hunt/auth.md`
-- `hunt/ssrf.md`
-- `hunt/authz.md`
-- `hunt/general.md`
-- `hunt/optimization.md`
-- `hunt/hunt.md`
-- `hunt/artifacts/data-flow/candidates_log.md`
-- `hunt/artifacts/data-flow/verified_log.md`
-- `hunt/artifacts/injection/candidates_log.md`
-- `hunt/artifacts/injection/verified_log.md`
-- `hunt/artifacts/xss/candidates_log.md`
-- `hunt/artifacts/xss/verified_log.md`
-- `hunt/artifacts/auth/candidates_log.md`
-- `hunt/artifacts/auth/verified_log.md`
-- `hunt/artifacts/ssrf/candidates_log.md`
-- `hunt/artifacts/ssrf/verified_log.md`
-- `hunt/artifacts/authz/candidates_log.md`
-- `hunt/artifacts/authz/verified_log.md`
-- `hunt/artifacts/general/candidates_log.md`
-- `hunt/artifacts/general/verified_log.md`
-- `hunt/artifacts/optimization/candidates_log.md`
-- `hunt/artifacts/optimization/verified_log.md`
-
-### 3. `$cs-report`
-
-Purpose: synthesize bootstrap and hunt outputs into one operator-facing report.
-
-Required output:
-
-- `report.md`
-
-Reporting rules:
-
-- Use bootstrap for scope, architecture, trust-boundary, and runtime context.
-- Use `hunt/data-flow.md`, the seven later hunt step files, and `hunt/hunt.md` for the security narrative.
-- Pull raw artifacts only when they materially strengthen a claim.
-- Include a `## Prioritized Findings` section for runtime-confirmed `P0` and `P1` items only.
-- Use the wording in `cs-report-output-shape.md` as the canonical report contract rather than paraphrasing it.
-- Before drafting the report, do one quick pass through all bootstrap and hunt markdown outputs.
-- Use `## Context (Bootstrap/Meta)` for what was scanned and what could not be checked.
-- In `## Hunt Summary`, include one concise bullet for every hunt step, including `optimization.md`.
-- Use `## Findings By Track` for the per-step detail in scan order.
-- Build `## Findings By Track` from each step's `## Issues We Found And Verified`.
-- Build `## Hardening` from bootstrap hardening leads plus each step's `## General Concerns We Found And Verified`.
-- Include reviewed-safe components so the report shows real coverage, not just problems.
-- End with `## What's Next` as the short operator handoff.
-- Add `## Misc Notes` only when there are genuinely useful leftovers that do not fit neatly elsewhere.
-- Keep the report local-only: no browser screenshots, no remote network evidence, no Playwright transcripts.
+- Bootstrap decides runtime posture and owns tool readiness.
+- Hunt follows the declared runtime posture and writes one complete step at a time.
+- Report reads all bootstrap and hunt artifacts before writing `report.md`.
 
 ## Local Scope Rules
 

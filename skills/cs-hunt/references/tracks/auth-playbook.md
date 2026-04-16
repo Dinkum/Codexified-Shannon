@@ -40,7 +40,7 @@ Required sections:
 2. `## Summary`
 3. `## What We Looked Into`
 4. `## Issues We Found And Verified`
-5. `## General Concerns We Found And Verified`
+5. `## General Concerns And Hardening Suggestions We Verified`
 6. `## Misc Notes`
 
 All sections should be flat lists.

@@ -64,7 +64,7 @@ Required sections:
 2. `## Summary`
 3. `## What We Looked Into`
 4. `## Issues We Found And Verified`
-5. `## General Concerns We Found And Verified`
+5. `## General Concerns And Hardening Suggestions We Verified`
 6. `## Misc Notes`
 
 All sections should be flat lists.
@@ -73,7 +73,7 @@ In this step:
 
 - `## What We Looked Into` should cover the main source families, sink families, and protected actions reviewed
 - `## Issues We Found And Verified` should include routing-worthy paths that survived review
-- `## General Concerns We Found And Verified` should include guard or sanitization weaknesses that matter even when they are not yet reportable issues
+- `## General Concerns And Hardening Suggestions We Verified` should include verified guard or sanitization weaknesses and the hardening suggestions they point to, even when they are not yet reportable issues
 
 Also maintain:
 

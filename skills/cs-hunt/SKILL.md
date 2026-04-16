@@ -9,9 +9,14 @@ description: Run the local-only Codex hunt phase across a data-flow step, five d
 
 `cs-hunt` consumes the bootstrap artifacts, runs one data-flow step, five directed security domains, a general step, and a final optimization step, then ends with one aggregate hunt synthesis.
 
-The goal is not to spray generic scanners at the repo. The goal is to develop strong, attack-relevant theories, pressure-test them, and leave behind clear operator-facing step writeups.
+The goal is not to spray generic scanners at the repo. The goal is to develop strong, attack-relevant theories, pressure-test them, and leave behind clear step writeups.
 
 Confirmed vulnerabilities are not the only valid output. Material hardening improvements, fragile controls, and regression-prone defenses should be carried forward when they materially improve security posture, even if no exploit is confirmed.
+
+Use this distinction consistently:
+
+- `issue`: a specific, bounded, pointable path or flaw
+- `concern`: broader verified hardening, maintenance, posture, duplication, bloat, or codebase-wide guidance
 
 Treat hunt as a consecutive sequence of domain steps, not one broad investigation pass followed by a bulk write. Each hunt domain is a real step that must be fully worked before the next one begins.
 
@@ -20,15 +25,22 @@ For every hunt step, complete these mandatory phases in order:
 1. `Investigation`
    - explore the domain thoroughly using the step-specific guidance
    - cast a wide net
-   - append plausible issues or concerns to `candidates_log.md`
+   - append plausible issues, general concerns, or hardening suggestions to `candidates_log.md`
 2. `Verification`
    - work through candidates one by one
    - verify, kill, downgrade, or mark safe
-   - append outcomes bit by bit to `verified_log.md`
+   - append outcomes bit by bit to `verified_log.md`, including verified hardening suggestions and general concerns
 3. `Writeup`
-   - write the final operator-facing step markdown from both logs and what actually happened in the step
+   - write the final step markdown from both logs and what actually happened in the step
 
 Do not treat these as lightweight checkboxes. A step is not complete until the domain has been explored to a solid, satisfactory, operator-usable degree, the candidate set has been pressure-tested, and the final step writeup has been produced. Later steps may reference or refine earlier conclusions, but do not defer all step writing until the end.
+
+Do not defer log writing.
+- Append to `candidates_log.md` as you investigate, one item at a time.
+- Append to `verified_log.md` as each candidate is checked, one item at a time.
+- Do not wait until the end of the step to populate either log.
+- Do not reconstruct either log from memory after the fact.
+- Do not begin the next hunt step until `hunt/<step>.md`, `candidates_log.md`, and `verified_log.md` all exist and reflect the work actually performed.
 
 Use `references/cs-hunt-playbook.md` for the shared hunt method, then load the matching file under `references/tracks/` for the current step's heuristics and output shape.
 
@@ -166,32 +178,21 @@ Honor bootstrap's runtime posture when deciding whether to do this work. If boot
    - route the strongest paths into the later domain steps
    - write `hunt/data-flow.md` before moving to `injection.md`
 5. For the five directed domain steps, check `bootstrap/scope.md` before deep review.
-6. For each step, perform three separate substeps before moving on:
-   - investigation substep: use the current step playbook to investigate thoroughly, cast a wide net, and append plausible issues or concerns to `hunt/artifacts/<step>/candidates_log.md`
-   - verification substep: work through candidates one by one, verify or kill them, and append outcomes bit by bit to `hunt/artifacts/<step>/verified_log.md`
-   - writeup substep: write the final step markdown from both logs and the actual step narrative
-7. During the verification substep, if a new plausible issue or concern appears:
-   - append it to `candidates_log.md`
-   - investigate it in the same step
-   - record the outcome in `verified_log.md`
-   - do not treat the initial `candidates_log.md` contents as a closed set
-8. Run investigation first, then trace and validate during verification, then write the final markdown.
-9. Write each step as one operator-facing markdown artifact before starting the next step.
-10. Use `general.md` to consume whatever the universal attack mapping, static pressure sweep, or data-flow pass surfaced that does not fit cleanly into injection, xss, auth, ssrf, or authz.
+6. Use `general.md` to consume whatever the universal attack mapping, static pressure sweep, or data-flow pass surfaced that does not fit cleanly into injection, xss, auth, ssrf, or authz.
    - this is where business-logic security testing lives
    - infer important invariants from code and state transitions
    - design concrete violation attempts
    - validate them with the cheapest credible local proof path
    - write `hunt/general.md` before moving to `optimization.md`
-11. Run `optimization.md` last.
+7. Run `optimization.md` last.
    - look only for `LOW RISK HIGH REWARD` wins
    - focus on avoidable O(n) or repeated work, needless abstraction cost, duplication, unnecessary serialization or parsing, and other efficiency gains that do not require risky rewrites
    - prefer changes that are cheap to explain and cheap to implement
    - write `hunt/optimization.md` before aggregate synthesis
-12. After the eight hunt steps finish, write `hunt/hunt.md` as the aggregate hunt synthesis.
+8. After the eight hunt steps finish, write `hunt/hunt.md` as the aggregate hunt synthesis.
    - include step outcomes
    - include cross-step chains
    - include the biggest unresolved paths
    - include notable hardening, trust-model, and optimization carry-forward notes
    - include short, concrete suggested next moves for the final handoff
-13. Never mutate the original source repo.
+9. Never mutate the original source repo.

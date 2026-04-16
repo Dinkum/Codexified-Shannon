@@ -35,6 +35,6 @@ Required sections:
 6. `## Hardening Priorities`
 7. `## Hunt Starting Point`
 
-This file is the operator-facing bootstrap synthesis.
+This file is the high-signal bootstrap synthesis.
 
 `## Hardening Priorities` should be concise and report-ready so the final `## Hardening` section can pull from it directly.
