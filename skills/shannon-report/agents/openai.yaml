@@ -1,0 +1,7 @@
+interface:
+  display_name: "Shannon Report"
+  short_description: "Builds the final local scan report"
+  default_prompt: "Use $shannon-report to synthesize the final report for reports/example-repo-2026-04-15."
+policy:
+  allow_implicit_invocation: true
+

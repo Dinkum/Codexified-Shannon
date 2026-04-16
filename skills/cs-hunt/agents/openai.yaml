@@ -1,0 +1,7 @@
+interface:
+  display_name: "CS Hunt"
+  short_description: "Runs local Shannon-style hunt tracks"
+  default_prompt: "Use $cs-hunt to execute the hunt phase for reports/example-repo-2026-04-15."
+policy:
+  allow_implicit_invocation: true
+

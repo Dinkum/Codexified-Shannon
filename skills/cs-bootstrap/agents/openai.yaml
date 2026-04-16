@@ -1,0 +1,7 @@
+interface:
+  display_name: "CS Bootstrap"
+  short_description: "Builds local pre-recon and recon artifacts"
+  default_prompt: "Use $cs-bootstrap to generate the bootstrap artifacts for scanning /absolute/path/to/repo."
+policy:
+  allow_implicit_invocation: true
+
