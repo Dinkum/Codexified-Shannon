@@ -1,15 +1,15 @@
-# Codexified-Shannon 
+# Codexified-Shannon - agentic security analysis for your vibe coded app
 A Codex version of (and inspired by) https://github.com/KeygraphHQ/shannon
 Performs a white box security analysis your local web app code.
 
 ## Prerequisites
 1. Codex 
 2. ripgrep jq yq semgrep 
-`brew install ripgrep jq yq semgrep`
+```brew install ripgrep jq yq semgrep```
 
 ## Usage 
 While in this repo run
-`codex -m gpt-5.4 -c model_reasoning_effort="high" --full-auto -c sandbox_workspace_write.network_access=true`
+```codex -m gpt-5.4 -c model_reasoning_effort="high" --full-auto -c sandbox_workspace_write.network_access=true```
 
 Tell Codex to scan a repo
 > Scan ~/Desktop/Repo

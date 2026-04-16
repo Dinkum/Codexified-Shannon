@@ -9,6 +9,117 @@ Use this package to run a local-only, white-box security review against a reposi
 ## Input
 A user will give you a local repo path to scan by something like "scan ~/Desktop/repo"
 
+## Workflow
+
+Follow this workflow exactly. Do not skip ahead. Do not investigate broadly and write artifacts later.
+
+Phases are strictly serial. Within each phase, steps are strictly serial.
+
+### 0. Setup
+
+1. Resolve the source repo path.
+2. Create the report directory:
+   a. use `reports/<repo>-<YYYY-MM-DD-HH-MM>/`
+   b. include the hour and minute in the directory name
+3. Copy the source repo into `reports/<repo>-<YYYY-MM-DD-HH-MM>/repo/`.
+4. Run all execution from the working copy only.
+
+### 1. Bootstrap
+
+> Run bootstrap steps in order. Do not begin the next bootstrap step until the current bootstrap step is complete and its required output has been written.
+
+1. Load `skills/cs-bootstrap/SKILL.md`.
+2. Load `skills/cs-bootstrap/references/cs-bootstrap-playbook.md`.
+
+3. Run the `scope` step.
+   a. Load and run `skills/cs-bootstrap/references/steps/scope-playbook.md`.
+   b. Write `bootstrap/scope.md`.
+
+4. Run the `inventory` step.
+   a. Load and run `skills/cs-bootstrap/references/steps/inventory-playbook.md`.
+   b. Write `bootstrap/inventory.md`.
+
+5. Run the `recon` step.
+   a. Load and run `skills/cs-bootstrap/references/steps/recon-playbook.md`.
+   b. Write `bootstrap/recon.md`.
+
+6. Run the `runtime decision and setup` step.
+   a. Choose runtime posture: `code-only`, `read-only runtime`, or `local runtime`.
+   b. If posture is `local runtime`:
+      - attempt one batched install command for useful Tier B tools plus any reasonable runtime dependencies or local services
+      - attempt a minimal startup or smoke check from the working copy
+      - record the actual command run, localhost target reached, and blockers
+   c. Record the result in `bootstrap/scope.md` and `bootstrap/handoff.json`.
+
+7. Run the `bootstrap synthesis` step.
+   a. Load and run `skills/cs-bootstrap/references/steps/bootstrap-playbook.md`.
+   b. Write `bootstrap/bootstrap.md`.
+
+8. Run the `handoff` step.
+   a. Use `skills/cs-bootstrap/references/cs-bootstrap-playbook.md` for the `handoff.json` shape.
+   b. Write `bootstrap/handoff.json`.
+
+Do not start Hunt until Bootstrap is fully complete.
+
+### 2. Hunt
+
+> Run hunt steps in order. Do not begin the next hunt step until the current hunt step is complete and its required output has been written.
+
+1. Load `skills/cs-hunt/SKILL.md`.
+2. Load `skills/cs-hunt/references/cs-hunt-playbook.md`.
+3. Load `skills/cs-hunt/references/framework-checklists.md` when relevant to the detected stack.
+
+4. Run the `data-flow` step.
+   a. Load and run `skills/cs-hunt/references/tracks/data-flow-playbook.md` to investigate the domain and continually append plausible issues, leads, and concerns to `hunt/artifacts/data-flow/candidates_log.md`.
+   b. Perform a separate verification pass and append outcomes to `hunt/artifacts/data-flow/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
+   c. Write `hunt/data-flow.md`.
+
+5. Run the `injection` step.
+   a. Load and run `skills/cs-hunt/references/tracks/injection-playbook.md` to investigate the domain and continually append plausible issues, leads, and concerns to `hunt/artifacts/injection/candidates_log.md`.
+   b. Perform a separate verification pass and append outcomes to `hunt/artifacts/injection/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
+   c. Write `hunt/injection.md`.
+
+6. Run the `xss` step.
+   a. Load and run `skills/cs-hunt/references/tracks/xss-playbook.md` to investigate the domain and continually append plausible issues, leads, and concerns to `hunt/artifacts/xss/candidates_log.md`.
+   b. Perform a separate verification pass and append outcomes to `hunt/artifacts/xss/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
+   c. Write `hunt/xss.md`.
+
+7. Run the `auth` step.
+   a. Load and run `skills/cs-hunt/references/tracks/auth-playbook.md` to investigate the domain and continually append plausible issues, leads, and concerns to `hunt/artifacts/auth/candidates_log.md`.
+   b. Perform a separate verification pass and append outcomes to `hunt/artifacts/auth/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
+   c. Write `hunt/auth.md`.
+
+8. Run the `ssrf` step.
+   a. Load and run `skills/cs-hunt/references/tracks/ssrf-playbook.md` to investigate the domain and continually append plausible issues, leads, and concerns to `hunt/artifacts/ssrf/candidates_log.md`.
+   b. Perform a separate verification pass and append outcomes to `hunt/artifacts/ssrf/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
+   c. Write `hunt/ssrf.md`.
+
+9. Run the `authz` step.
+   a. Load and run `skills/cs-hunt/references/tracks/authz-playbook.md` to investigate the domain and continually append plausible issues, leads, and concerns to `hunt/artifacts/authz/candidates_log.md`.
+   b. Perform a separate verification pass and append outcomes to `hunt/artifacts/authz/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
+   c. Write `hunt/authz.md`.
+
+10. Run the `general` step.
+    a. Load and run `skills/cs-hunt/references/tracks/general-playbook.md` to investigate the domain and continually append plausible issues, leads, and concerns to `hunt/artifacts/general/candidates_log.md`.
+    b. Perform a separate verification pass and append outcomes to `hunt/artifacts/general/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
+    c. Write `hunt/general.md`.
+
+11. Run the `optimization` step.
+    a. Load and run `skills/cs-hunt/references/tracks/optimization-playbook.md` to investigate the domain and continually append plausible issues, leads, and concerns to `hunt/artifacts/optimization/candidates_log.md`.
+    b. Perform a separate verification pass and append outcomes to `hunt/artifacts/optimization/verified_log.md`. If verification uncovers a new plausible issue, lead, or concern, append it to `candidates_log.md`, investigate it in the same step, and append the outcome to `verified_log.md`.
+    c. Write `hunt/optimization.md`.
+
+12. After all hunt steps are complete, write `hunt/hunt.md`.
+
+Do not start Report until Hunt is fully complete.
+
+### 3. Report
+
+1. Load `skills/cs-report/SKILL.md`.
+2. Load `skills/cs-report/references/cs-report-output-shape.md`.
+3. Read all bootstrap and hunt artifacts.
+4. Write `reports/<repo>-<YYYY-MM-DD-HH-MM>/report.md`.
+
 ## First Principles
 
 - Use structure as scaffolding, not handcuffs.
@@ -21,7 +132,7 @@ A user will give you a local repo path to scan by something like "scan ~/Desktop
 
 The source repository provided by the user is read-only for scan purposes.
 
-- At the start of every scan, create a per-scan working copy at `reports/<repo>-<YYYY-MM-DD>/repo/`.
+- At the start of every scan, create a per-scan working copy at `reports/<repo>-<YYYY-MM-DD-HH-MM>/repo/`.
 - Never edit, build into, clean, install into, or otherwise mutate the original source repository.
 - Any command that can write files, install dependencies, generate build output, start services, run migrations, or create temp state must run against the copied repo.
 - Use the original source repo for reference only when needed; use the copied repo for execution.
@@ -125,7 +236,7 @@ Do not use Playwright. Do not rely on browser automation. Do not scan public int
 When the user says `scan <LOCAL REPO PATH>`:
 
 1. Resolve the path to an absolute local repository path and confirm it exists.
-2. Derive the repository slug and today's date as `YYYY-MM-DD`, create `reports/<repo>-<YYYY-MM-DD>/` with these subdirectories, and copy the source repository into `reports/<repo>-<YYYY-MM-DD>/repo/`:
+2. Derive the repository slug and the current timestamp as `YYYY-MM-DD-HH-MM`, create `reports/<repo>-<YYYY-MM-DD-HH-MM>/` with these subdirectories, and copy the source repository into `reports/<repo>-<YYYY-MM-DD-HH-MM>/repo/`:
    - `repo/`
    - `bootstrap/`
    - `hunt/`
@@ -143,11 +254,9 @@ When the user says `scan <LOCAL REPO PATH>`:
    - `$cs-bootstrap`
    - `$cs-hunt`
    - `$cs-report`
-5. Finish with the final markdown deliverable at `reports/<repo>-<YYYY-MM-DD>/report.md`.
+5. Finish with the final markdown deliverable at `reports/<repo>-<YYYY-MM-DD-HH-MM>/report.md`.
 
 Do not skip a phase. Do not start `$cs-hunt` until `$cs-bootstrap` has written its required artifacts. Do not start `$cs-report` until `$cs-hunt` has written `hunt/data-flow.md`, the seven later hunt step files, and `hunt/hunt.md`.
-
-Note: if `reports/<repo>-<YYYY-MM-DD>/` already exists, increment with `reports/<repo>-<YYYY-MM-DD><n>/`
 
 ## Workflow Model
 
@@ -171,6 +280,14 @@ Bootstrap must choose one runtime posture for the scan and record it in `bootstr
   - use when the app can be started from the working copy with reasonable local setup and without depending on non-local external services
 
 On the operator's own trusted code, prefer `local runtime` when bootstrap judges it feasible and reasonably contained. Fall back to `read-only runtime` or `code-only` when setup is unsafe, too expensive, too misleading, or simply not tractable.
+
+If bootstrap chooses `local runtime`, it must try to operationalize that choice before hunt starts:
+
+1. attempt the one batched install command for useful Tier B tools plus any reasonable repo-specific dependencies or local services needed to run the app
+2. attempt a minimal startup or smoke check from the working copy when that is reasonable for the repo shape
+3. record the actual command run, the actual localhost target reached, and any blockers that prevented startup or meaningful probing
+
+Hunt should then reuse that runtime state or startup recipe for live verification instead of rediscovering it from scratch.
 
 When runtime is used:
 
@@ -210,6 +327,10 @@ Minimum content:
 - lightweight static pressure points such as point issues, secrets clues, dependency hotspots, and invariants to test
 - chosen runtime posture with one-line justification
 - runtime setup notes when the repo looks runnable
+- actual local-runtime outcome when `local runtime` was chosen:
+  - command run
+  - localhost target reached
+  - blockers if startup or probing failed
 - top review targets
 - high-reward investigation directions for hunt
 

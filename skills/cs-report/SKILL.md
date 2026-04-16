@@ -16,7 +16,7 @@ Use `references/cs-report-output-shape.md` as the required report structure.
 ## Inputs
 
 - Target repository path
-- Active scan output root: `reports/<repo>-<YYYY-MM-DD>/`
+- Active scan output root: `reports/<repo>-<YYYY-MM-DD-HH-MM>/`
 - Bootstrap artifacts:
   - `bootstrap/scope.md`
   - `bootstrap/inventory.md`

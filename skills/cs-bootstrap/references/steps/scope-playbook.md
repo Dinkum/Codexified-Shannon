@@ -10,6 +10,7 @@ This is the first bootstrap checkpoint. Gather only the evidence needed to class
 - Which directed hunt tracks are fully applicable, partially applicable, or largely inapplicable?
 - Which runtime posture fits best: `code-only`, `read-only runtime`, or `local runtime`?
 - What is the biggest blocker if the posture is not `local runtime`?
+- If the posture is `local runtime`, what is the narrowest reasonable startup or smoke-check path bootstrap should attempt before hunt?
 - What working-copy or safety constraints should later phases honor?
 - What blocking assumptions or coverage limits should be called out early?
 
@@ -35,3 +36,8 @@ Required sections:
 6. `## Blocking Assumptions`
 
 `## Blocking Assumptions` should be concrete and report-ready. It is the main bootstrap source for `Context (Bootstrap/Meta)` -> `What We Could Not Check`.
+
+`## Runtime Posture` should name not just the chosen posture, but also the intended next runtime action:
+
+- for `local runtime`: the startup or smoke-check path bootstrap should attempt before hunt
+- for non-`local runtime`: the main blocker that prevented that attempt

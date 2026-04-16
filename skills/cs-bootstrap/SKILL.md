@@ -20,8 +20,8 @@ Treat bootstrap as a sequence of checkpoints, not one broad recon sweep followed
 ## Inputs
 
 - Absolute source repository path
-- Active scan output root: `reports/<repo>-<YYYY-MM-DD>/`
-- Active working copy path: `reports/<repo>-<YYYY-MM-DD>/repo/`
+- Active scan output root: `reports/<repo>-<YYYY-MM-DD-HH-MM>/`
+- Active working copy path: `reports/<repo>-<YYYY-MM-DD-HH-MM>/repo/`
 
 ## Tooling
 
@@ -96,7 +96,7 @@ Do not dump a long checklist into the deliverables.
 
 1. Resolve the target repo path and create the scan directories if they do not already exist.
 2. Read any target-repo `AGENTS.md` files that apply before doing analysis.
-3. Create the working copy at `reports/<repo>-<YYYY-MM-DD>/repo/`.
+3. Create the working copy at `reports/<repo>-<YYYY-MM-DD-HH-MM>/repo/`.
    - Do not mutate the source repo.
    - All later build, run, test, and probe actions must use the working copy.
    - Do not use the source repo's `.venv`, `node_modules`, built artifacts, or already-running services as scan infrastructure once the copy exists.
@@ -142,17 +142,23 @@ Do not dump a long checklist into the deliverables.
    - include reasonable repo-specific dependencies or local services needed to start the app when the chosen runtime posture is `local runtime`
    - attempt one batched install command rather than only describing it
    - if approval is denied or the install fails, record what gets skipped and continue with the reduced tool set
-10. Load only the matching vendored best-practice refs when they help.
-11. Write `bootstrap/bootstrap.md`.
+10. If the chosen runtime posture is `local runtime`, attempt a minimal startup or smoke check before hunt starts.
+   - run only from the working copy
+   - use the installed dependencies or local services from the batched install step when needed
+   - prefer the narrowest viable start path over booting the whole world
+   - record the actual command run, the actual localhost target reached, and any blockers that prevented startup or meaningful probing
+   - if the startup path turns out to be unsafe, misleading, or too expensive, downgrade the posture and say so explicitly
+11. Load only the matching vendored best-practice refs when they help.
+12. Write `bootstrap/bootstrap.md`.
    - use `references/steps/bootstrap-playbook.md`
-12. Write `bootstrap/handoff.json`.
+13. Write `bootstrap/handoff.json`.
    - use `references/cs-bootstrap-playbook.md`
 
 ## Tips
 
 - Read target-repo docs and `AGENTS.md` files for orientation, but let code and config overrule aspirational README language.
 - If the repo contains multiple apps, create a mini service map before writing the deliverables.
-- If localhost validation may matter later, note the most plausible start commands, required services, obvious env files, and the best localhost targets without trying to fully solve runtime at this stage.
+- If localhost validation may matter later and bootstrap chose `local runtime`, do a minimal startup or smoke check first and record what actually worked. If bootstrap did not choose `local runtime`, note the most plausible start commands, required services, obvious env files, and the best localhost targets without pretending the app was stood up.
 - Use matching stack refs to sharpen expectations, but rewrite them into repo-specific guidance instead of echoing framework docs.
 - Make `## Universal Attack Mapping` feel operational. Hunt should be able to start from it immediately without re-deriving the core abuse paths.
 - Keep the static pressure sweep lightweight. It should sharpen hunt, not become a second heavyweight phase.

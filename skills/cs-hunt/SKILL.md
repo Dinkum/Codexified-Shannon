@@ -35,8 +35,8 @@ Use `references/cs-hunt-playbook.md` for the shared hunt method, then load the m
 ## Inputs
 
 - Source repository path
-- Active scan output root: `reports/<repo>-<YYYY-MM-DD>/`
-- Active working copy path: `reports/<repo>-<YYYY-MM-DD>/repo/`
+- Active scan output root: `reports/<repo>-<YYYY-MM-DD-HH-MM>/`
+- Active working copy path: `reports/<repo>-<YYYY-MM-DD-HH-MM>/repo/`
 - Bootstrap artifacts:
   - `bootstrap/scope.md`
   - `bootstrap/inventory.md`
@@ -47,6 +47,7 @@ Use `references/cs-hunt-playbook.md` for the shared hunt method, then load the m
 Treat `bootstrap/handoff.json` as the primary structured targeting map, but read all bootstrap markdown before starting any step.
 Start from `bootstrap/recon.md`'s `## Universal Attack Mapping`, `bootstrap/recon.md`'s `## Static Pressure Points`, and `bootstrap/bootstrap.md`'s hunt directions before you decide where to spend time.
 Hunt is expected to use the runtime posture declared in `bootstrap/scope.md` and `bootstrap/handoff.json`.
+If bootstrap successfully recorded an `actual_start_command` or `actual_localhost_target`, prefer reusing that runtime foothold for live verification instead of rediscovering startup from scratch.
 
 ## Hunt Step Order
 
@@ -104,6 +105,7 @@ Do not satisfy runtime or test steps by invoking interpreters, virtualenvs, pack
 - Trace end to end.
 - Keep asking what an attacker would actually do next.
 - Use the declared runtime posture instead of improvising your own.
+- Reuse the runtime foothold bootstrap already established when it exists.
 - Use runtime only to sharpen or clear findings, not as a substitute for understanding the code.
 - Explicitly document safe components that looked promising but held up under review.
 - Surface hardening notes whenever a control is missing, fragmented, opt-in, weak by default, or likely to regress.
